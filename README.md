@@ -5,9 +5,16 @@ Collected IMU and FSR data during finger tapping test from patients with neurolo
 Working on computer-aided differential diagnostics. 
 
 
-TappingForceExamine is standalone and not really relevant at the moment.
+TappingForceExamine is standalone and not really relevant at the moment. So is dropout plot.
 
-To run TappingML you must first have your data in the format output by TappingSaveReshappedData.
+1. Run TappingSaveReshappedData
+2. Run TappingML 
+3. Run PredictTestDescriptive
+
+
+All of these scripts require some minor modification to run, particularly setting the working directory or choosing what samples to predict.
+
+
 
 
 
