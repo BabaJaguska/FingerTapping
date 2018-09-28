@@ -10,6 +10,7 @@ TappingForceExamine is standalone and not really relevant at the moment. So is d
 1. Run TappingSaveReshappedData
 2. Run TappingML 
 3. Run PredictTestDescriptive
+
 3a.Alternatively start a local server and load model by running ServeModel.py 
 and then predict a single file through SimpleRequest.py (doesn't accept arguments yet.)
 
