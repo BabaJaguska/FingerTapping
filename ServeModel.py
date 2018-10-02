@@ -10,6 +10,7 @@ import numpy as np
 import flask
 from keras.models import load_model
 import scipy.io
+import requests
 
 #basic app. run from conda with: python ServeModel.py then run SimpleRequest.py for now
 
@@ -18,6 +19,7 @@ import scipy.io
 # %%initialize Flask app
 app = flask.Flask(__name__)
 root = 'C:/Users/Korisnik/Desktop/Minjino/TAPPING/'
+signalsRoot = 'C:/Users/Korisnik/Desktop/Minjino/TAPPING/TEST_FILES/'
 
 def predictSignal(signalX, model):
     pred = {}
@@ -50,28 +52,61 @@ def loadModel(root):
     model._make_predict_function()
     model.load_weights(root+'CNN25sep4.25.9.2018.15.5valjda.h5')
     return
-
+# %% index
+    
+@app.route("/")
+def basic():
+    return flask.redirect(flask.url_for('index'))
+  
 # %% test route
+#
+#@app.route("/bratac",methods = ["GET"])
+#
+#def bratac():
+#    return 'MWHAHAAH BRT'
 
-@app.route("/bratac",methods = ["GET"])
+# %% get file name to post
 
-def bratac():
-    return 'MWHAHAAH BRT'
+@app.route("/_getFileName",methods = ["POST","GET"])
+def getFileName():
+#    
+    try:
+        fileName = flask.request.args.get('fileName',type=str)
+        fileName = fileName.split("\\").pop();
+        fileName = signalsRoot + fileName
+       
+        signal = open(fileName,'rb').read(); ## loool? ovo treba zasto?
+
+        payload = {"signal":signal}
+        response = requests.post('http://localhost:5000/_PREDICT', files = payload).json()
+        print(response['success'])
+        if response['success']:
+            return flask.jsonify(response['predictions'])
+        else:
+            return flask.jsonify("Failed request")
+    except Exception as e:
+        return(str(e))
+        
+# %% hm interactive stuff
+@app.route("/index",methods = ["POST","GET"])
+def index():
+    try:
+        return flask.render_template("index.html")
+    except Exception as e:
+        return(str(e))
+        
 # %% actual route
 
-@app.route("/predict",methods = ["POST"])
+@app.route("/_PREDICT",methods = ["POST"])
 
-def predict():
+def _PREDICT():
     data = {"success":False}
-      
+    
     if flask.request.method == "POST":
         signal = flask.request.files["signal"]
-        print(signal)
-        print('aman')
         signal = scipy.io.loadmat(signal)
         print(signal)
         signal = signal['X']
-       
         pred = predictSignal(signal,model)
             # make sure to be able to accept raw signals and then prepare them
         
