@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
+    <script src = "http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <title>index</title>
+    <script type = text/javascript>
+    $(function(){
+        $('#process_input').on('click',function(){
+                $.getJSON('_getFileName',{
+                    fileName: $('input[name = "testFile"]').val()
+                }, function(output){
+                    $("#diagnosis").html(output["predictedDiagnosis"]);
+                    $("#CTRL").html(output["CTRL"])
+                    $("#MSA").html(output["MSA"])
+                    $("#PD").html(output["PD"])
+                    $("#PSP").html(output["PSP"])
+                });
+                return false;
+            });    
+    });  
+    </script>
+
+</head>
+<body>
+    <div>
+        <h3> Get the likely diagnosis </h3>
+        <form>
+        <input type = file size = 5 name = testFile>
+        <a href='#' id = process_input><button> Submit </button></a>
+        </form>
+        <p>
+            Predicted diagnosis: <span id =diagnosis></span><br>
+            Certainty:<br>
+            CTRL: <span id = CTRL></span> <br>
+            MSA: <span id = MSA></span><br>
+            PD: <span id = PD></span><br>
+            PSP: <span id = PSP></span><br>
+        
+        </p>
+
+
+        </div>
+
+</body>
+</html>
