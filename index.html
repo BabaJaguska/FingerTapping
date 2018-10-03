@@ -6,18 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
     <script src = "http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <title>index</title>
+    
     <script type = text/javascript>
     $(function(){
         $('#process_input').on('click',function(){
                 $.getJSON('_getFileName',{
                     fileName: $('input[name = "testFile"]').val()
                 }, function(output){
-                    $("#diagnosis").html(output["predictedDiagnosis"]);
-                    $("#CTRL").html(output["CTRL"])
-                    $("#MSA").html(output["MSA"])
-                    $("#PD").html(output["PD"])
-                    $("#PSP").html(output["PSP"])
+                    var diag = output["predictedDiagnosis"];
+                    var probDisease = Math.round(1-output["CTRL"]);
+                    if (probDisease ==1){
+                        probDisease = ">0.99"
+                    }
+                    else if (probDisease == 0){
+                        probDisease = "<0.001"
+                    }
+                    $("#CTRL").html(probDisease);
+                    if (diag !="CTRL"){
+                        $("#diagnosis").html(diag);
+                        $("#MSA").html(output["MSA"])
+                        $("#PD").html(output["PD"])
+                        $("#PSP").html(output["PSP"])
+
+                    }
+                    else {
+                        $("#diagnosis").html("-");
+                        $("#MSA").html("-")
+                        $("#PD").html("-")
+                        $("#PSP").html("-")
+                    }                
+                        
+
                 });
                 return false;
             });    
@@ -26,24 +50,35 @@
 
 </head>
 <body>
-    <div>
-        <h3> Get the likely diagnosis </h3>
-        <form>
-        <input type = file size = 5 name = testFile>
-        <a href='#' id = process_input><button> Submit </button></a>
-        </form>
-        <p>
-            Predicted diagnosis: <span id =diagnosis></span><br>
-            Certainty:<br>
-            CTRL: <span id = CTRL></span> <br>
-            MSA: <span id = MSA></span><br>
-            PD: <span id = PD></span><br>
-            PSP: <span id = PSP></span><br>
-        
-        </p>
-
-
-        </div>
+    <div class = "container container-fluid" id = "wrapper" style="width:40%; height:40%; margin-left:35%; margin-top:10%; display:inline-block">
+        <h3 style="margin-bottom:30px"> Get the likely diagnosis </h3>
+        <div>
+            
+            
+            <form style="margin-bottom:30px">
+                <div class="btn-group btn-group-horizontal">
+                <input type = file size = 5 name = testFile>
+                <a href='#' id = process_input ><button class = "btn btn-primary" style="margin-top:20px"> Submit</button></a>
+                </div>
+             </form>
+            
+             <div class = "container well" style ="width:35%; position:absolute;">
+                 <p>
+                  <b>Likelihood of presence of a neurodegenerative condition: <span id = CTRL></span></b> <br>
+                 </p>
+                 <p id = dijagnoze>
+                  Probable diagnosis:<b> <span id =diagnosis></span><br><br></b>
+                  Certainty:<br>
+               
+                  MSA: <span id = MSA></span><br>
+                  PD: <span id = PD></span><br>
+                  PSP: <span id = PSP></span><br>
+                    
+                 </p>
+            </div>
+         </div>
+     
+    </div>
 
 </body>
 </html>
