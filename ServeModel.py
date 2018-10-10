@@ -48,9 +48,9 @@ def predictSignal(signalX, model):
 #print(model.summary())
 def loadModel(root):
     global model
-    model = load_model(root + 'my_model.h5')
+    model = load_model(root + 'MODELCNN16Batch9s9KERNEL9CEO.h5')
     model._make_predict_function()
-    model.load_weights(root+'CNN25sep4.25.9.2018.15.5valjda.h5')
+    model.load_weights(root+'!BEST_WEIGHTSCNN16Batch9s9KERNEL9.10.10.2018.9.20.h5')
     return
 # %% index
     
