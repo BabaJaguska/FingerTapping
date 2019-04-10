@@ -967,7 +967,7 @@ def confuseMat(Xtest, Ytest,model):
     print(confMat)
     sumaPoRedovima = confMat.astype('float').sum(axis=1)
     confMatPerc = [gore/dole for gore,dole in zip(confMat,sumaPoRedovima)]
-    confMatPerc = np.matrix(confMatPerc)
+    confMatPerc = np.matrix(confMatPerc)*100
     
     return [confMat,confMatPerc]
 
@@ -979,7 +979,7 @@ def plotConfMat(cm,cmPerc):
     for i,j in itertools.product(range(4),range(4)):
         plt.text(i,j,'{}%\n({})'.format(round(cmPerc[j,i],2),cm[j,i],'d'),
                 horizontalalignment = "center",
-                color = "white" if cmPerc[j,i]<0.6 else "black",
+                color = "white" if cmPerc[j,i]<60 else "black",
                 size = 15)
     tick_marks = np.arange(4)
     classes = ['HC','MSA','PD','PSP']
@@ -1013,15 +1013,15 @@ for datic in dataTestRight:
         najmanjeCropova = tempCropova
         ##
     random.seed(123)
-    idx = random.sample(range(tempCropova),4)
+    idx = range(4)
     _,tempAcc = mA.evaluate(tempX[idx],tempY[idx])
     # a vidi sad koje tacno brojeve vraca, ne samo max index
-    predikcije = np.mean(mA.predict(tempX),axis=0)
+    predikcije = np.mean(mA.predict(tempX[idx]),axis=0)
     paMean = np.argmax(predikcije)
     srednjePred.append(paMean)
     predProb.append(predikcije)
     tempPred = [np.argmax(p) for p in mA.predict(tempX[idx])]
-    pa=[np.argmax(p) for p in mA.predict(tempX)]
+    pa=[np.argmax(p) for p in mA.predict(tempX[idx])]
     predAll.append(pa)
     accEach.append(tempAcc) # na onoliko koliko si izabrala odbiraka
     predEach.append(tempPred)
@@ -1052,5 +1052,11 @@ def kodiraj(numPrediction):
 
 kodiraniSmoothies = [kodiraj(pred) for pred in srednjePred]
 cmm = confusion_matrix(dijagnoze,kodiraniSmoothies)
-cmmPerc = cmm/np.sum(cmm,axis=1)
+cmmPerc = [c/s for c,s in zip(cmm,np.sum(cmm,axis=1))]
+cmmPerc=np.matrix(cmmPerc)*100
 plotConfMat(cmm,cmmPerc)
+
+#%% 
+from keras.utils import plot_model
+
+plot_model(mA,path+'juhuModelSlika.png',show_shapes=True)
