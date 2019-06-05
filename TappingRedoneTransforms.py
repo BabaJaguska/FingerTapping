@@ -1202,17 +1202,302 @@ def hasWeights(layername):
     "FLAT" in layername  or\
     "flatten" in layername or\
     "input" in layername or\
-    "pooling" in layername or\
-    "ReLu" in layername or\
-    "reLu" in layername or\
-    "Softmax" in layername or\
     "reshape" in layername:
         ok = False
     return ok
 
+    #"pooling" in layername or\
+    #"ReLu" in layername or\
+    #"reLU" in layername or\
+    #"Softmax" in layername or\
 
 from keras import backend as K    
 inp = model.input
 outs = [layer.output for layer in model.layers if hasWeights(layer.name)]
 functor = K.function([inp]+ [K.learning_phase()],outs)
 izlazi = functor([XtrainRight,0])
+
+
+#%%
+
+temp = izlazi[3] #maxpool 1
+#plt.figure(figsize = (12,8))
+#plt.plot(temp[12,:,0]) #osoba red br 12, kanal 0ti
+#plt.show()
+#plt.plot(temp[12,:,1]) #osoba red br 12, kanal 1vi
+#plt.show()
+#plt.plot(temp[12,:,10]) #osoba red br 12, kanal 10i
+#plt.show()
+
+plt.plot(temp[98,:,:]) #osoba red br 12, svih 32 kanala  #MSA
+plt.title("MSA, CONV1")
+plt.show()
+
+plt.plot(temp[555,:,:]) #osoba red br 122, svih 32 kanala #CTRL
+plt.title("CTRL, CONV1")
+plt.show()
+
+
+plt.plot(temp[66,:,:]) #osoba red br 122, svih 32 kanala #PD
+plt.title("PD, CONV1")
+plt.show()
+
+plt.plot(temp[1100,:,:]) #osoba red br 122, svih 32 kanala #PSP
+plt.title("PSP CONV1")
+plt.title("PSP, CONV1")
+plt.show()
+###
+
+temp = izlazi[7] #maxpool posle 2 conv
+plt.plot(temp[98,:,:]) #osoba red br 12, svih 32 kanala  #MSA
+plt.title("MSA, CONV2")
+plt.show()
+
+plt.plot(temp[555,:,:]) #osoba red br 122, svih 32 kanala #CTRL
+plt.title("CTRL CONV2")
+plt.show()
+
+plt.plot(temp[66,:,:]) #osoba red br 122, svih 32 kanala #PD
+plt.title("PD, CONV2")
+plt.show()
+
+plt.plot(temp[1100,:,:]) #osoba red br 122, svih 32 kanala #PSP
+plt.title("PSP CONV2")
+plt.show()
+###
+temp = izlazi[11] #max posle conv3
+plt.plot(temp[98,:,:]) #osoba red br 12, svih 32 kanala  #MSA
+plt.title("MSA, CONV3")
+plt.show()
+
+plt.plot(temp[555,:,:]) #osoba red br 122, svih 32 kanala #CTRL
+plt.title("CTRL CONV3")
+plt.show()
+
+plt.plot(temp[66,:,:]) #osoba red br 122, svih 32 kanala #PD
+plt.show()
+
+plt.plot(temp[1100,:,:]) #osoba red br 122, svih 32 kanala #PSP
+plt.title("PSP CONV3")
+plt.show()
+
+##
+temp = izlazi[15] #max posle conv 4
+plt.plot(temp[98,:,:]) #osoba red br 12, svih 32 kanala  #MSA
+plt.title("MSA, CONV4")
+plt.show()
+
+plt.plot(temp[555,:,:]) #osoba red br 122, svih 32 kanala #CTRL
+plt.title("CTRL CONV4")
+plt.show()
+
+plt.plot(temp[66,:,:]) #osoba red br 122, svih 32 kanala #PD
+plt.show()
+
+plt.plot(temp[1100,:,:]) #osoba red br 122, svih 32 kanala #PSP
+plt.title("PSP CONV4")
+plt.show()
+
+##
+temp = izlazi[19]
+plt.plot(temp[98,:,:]) #osoba red br 12, svih 32 kanala  #MSA
+plt.title("MSA, CONV5")
+plt.show()
+
+plt.plot(temp[555,:,:]) #osoba red br 122, svih 32 kanala #CTRL
+plt.title("CTRL CONV5")
+plt.show()
+
+plt.plot(temp[66,:,:]) #osoba red br 122, svih 32 kanala #PD
+plt.show()
+
+plt.plot(temp[1100,:,:]) #osoba red br 122, svih 32 kanala #PSP
+plt.title("PSP CONV5")
+plt.show()
+
+##
+temp = izlazi[23]
+plt.plot(temp[98,:,:]) #osoba red br 12, svih 32 kanala  #MSA
+plt.title("MSA, CONV6")
+plt.show()
+
+plt.plot(temp[555,:,:]) #osoba red br 122, svih 32 kanala #CTRL
+plt.title("CTRL CONV6")
+plt.show()
+
+plt.plot(temp[66,:,:]) #osoba red br 122, svih 32 kanala #PD
+plt.title("PD, CONV6")
+plt.show()
+
+plt.plot(temp[1100,:,:]) #osoba red br 122, svih 32 kanala #PSP
+plt.title("PSP CONV6")
+plt.show()
+
+## 
+#%%
+
+fig = plt.figure(figsize = (20,20))
+
+temp = izlazi[3]
+
+plt.subplot(641)
+plt.plot(temp[98,0:200,8]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,12]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,28]) 
+plt.title("MSA")
+plt.ylabel("CONV1")
+
+plt.subplot(642)
+plt.plot(temp[555,0:200,8]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,12]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,28]) 
+plt.title("CTRL")
+
+plt.subplot(643)
+plt.plot(temp[66,0:200,8]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,12]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,28]) 
+plt.title("PD")
+
+plt.subplot(644)
+plt.plot(temp[1100,0:200,8]) #osoba red br 122, svih 32 kanala #PSP #imas i 211  a i 1100 nije strasno i 1120 mozda ok 
+plt.plot(temp[1100,0:200,12]) #
+plt.plot(temp[1100,0:200,28]) 
+plt.title("PSP")
+
+
+#kanal 8 je zanimljiv kod conv1
+# i 12 nesto fali kod msa
+#mozda i 13
+#i mozes 28
+
+####
+temp = izlazi[7]
+plt.subplot(645)
+plt.plot(temp[98,0:200,8]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,12]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,28]) 
+plt.ylabel("CONV2")
+
+
+plt.subplot(646)
+plt.plot(temp[555,0:200,8]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,12]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,28]) 
+
+
+plt.subplot(647)
+plt.plot(temp[66,0:200,8]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,12]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,28]) 
+
+
+plt.subplot(648)
+plt.plot(temp[1100,0:200,8]) #osoba red br 122, svih 32 kanala #PSP #imas i 211  a i 1100 nije strasno i 1120 mozda ok 
+plt.plot(temp[1100,0:200,12]) #
+plt.plot(temp[1100,0:200,28]) 
+#####
+temp = izlazi[11]
+plt.subplot(649)
+plt.plot(temp[98,0:200,8]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,12]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,28]) 
+plt.ylabel("CONV3")
+
+
+plt.subplot(6,4,10)
+plt.plot(temp[555,0:200,8]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,12]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,28]) 
+
+
+plt.subplot(6,4,11)
+plt.plot(temp[66,0:200,8]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,12]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,28]) 
+
+
+plt.subplot(6,4,12)
+plt.plot(temp[1100,0:200,8]) #osoba red br 122, svih 32 kanala #PSP #imas i 211  a i 1100 nije strasno i 1120 mozda ok 
+plt.plot(temp[1100,0:200,12]) #
+plt.plot(temp[1100,0:200,28]) 
+
+##############
+temp = izlazi[15]
+plt.subplot(6,4,13)
+plt.plot(temp[98,0:200,8]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,12]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,28]) 
+plt.ylabel("CONV4")
+
+
+plt.subplot(6,4,14)
+plt.plot(temp[555,0:200,8]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,12]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,28]) 
+
+
+plt.subplot(6,4,15)
+plt.plot(temp[66,0:200,8]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,12]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,28]) 
+
+
+plt.subplot(6,4,16)
+plt.plot(temp[1100,0:200,8]) #osoba red br 122, svih 32 kanala #PSP #imas i 211  a i 1100 nije strasno i 1120 mozda ok 
+plt.plot(temp[1100,0:200,12]) #
+plt.plot(temp[1100,0:200,28]) 
+
+########3
+temp = izlazi[19]
+plt.subplot(6,4,17)
+plt.plot(temp[98,0:200,8]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,12]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,28]) 
+plt.ylabel("CONV5")
+
+
+plt.subplot(6,4,18)
+plt.plot(temp[555,0:200,8]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,12]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,28]) 
+
+
+plt.subplot(6,4,19)
+plt.plot(temp[66,0:200,8]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,12]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,28]) 
+
+
+plt.subplot(6,4,20)
+plt.plot(temp[1100,0:200,8]) #osoba red br 122, svih 32 kanala #PSP #imas i 211  a i 1100 nije strasno i 1120 mozda ok 
+plt.plot(temp[1100,0:200,12]) #
+plt.plot(temp[1100,0:200,28]) 
+#########3
+temp = izlazi[23]
+plt.subplot(6,4,21)
+plt.plot(temp[98,0:200,8]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,12]) #osoba red br 12, svih 32 kanala  #MSA i 98 je neki msa izgleda nije strasan
+plt.plot(temp[98,0:200,28]) 
+plt.ylabel("CONV6")
+
+
+plt.subplot(6,4,22)
+plt.plot(temp[555,0:200,8]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,12]) #osoba red br 122, svih 32 kanala #CTRL i 555 je ctrl mozda lepsa i 1130 je ok
+plt.plot(temp[555,0:200,28]) 
+
+
+plt.subplot(6,4,23)
+plt.plot(temp[66,0:200,8]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,12]) #osoba red br 122, svih 32 kanala #PD i 66 je pd i 77 ali cudan bas
+plt.plot(temp[66,0:200,28]) 
+
+
+plt.subplot(6,4,24)
+plt.plot(temp[1100,0:200,8]) #osoba red br 122, svih 32 kanala #PSP #imas i 211  a i 1100 nije strasno i 1120 mozda ok 
+plt.plot(temp[1100,0:200,12]) #
+plt.plot(temp[1100,0:200,28]) 
+
+fig.tight_layout()
+plt.show()
