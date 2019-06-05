@@ -160,12 +160,16 @@ class measurement:
             
             
             ######################
-            ##transform spheric mozda
+            ##transform spherical mozda?
 
             
              #gyro1xT, gyro1yT, gyro1zT,gyro2xT, gyro2yT, gyro2zT = self.transformSpheric()
             
              gyro1xT, gyro1yT, gyro1zT,gyro2xT, gyro2yT, gyro2zT = self.gyro1xT, self.gyro1yT, self.gyro1zT,self.gyro2xT, self.gyro2yT,self.gyro2zT 
+             #integral svake ose
+             #gyro1xT, gyro1yT, gyro1zT,gyro2xT, gyro2yT, gyro2zT = np.cumsum(self.gyro1xT), np.cumsum(self.gyro1yT), np.cumsum(self.gyro1zT),np.cumsum(self.gyro2xT), np.cumsum(self.gyro2yT),np.cumsum(self.gyro2zT)
+             #from scipy.signal import detrend
+             #gyro1xT, gyro1yT, gyro1zT,gyro2xT, gyro2yT, gyro2zT = detrend(gyro1xT), detrend(gyro1yT), detrend(gyro1zT), detrend(gyro2xT), detrend(gyro2yT), detrend(gyro2zT)
             ######################
             
              x1min = np.min(gyro1xT[(i+1)*self.fs:(i+1)*self.fs + seconds*self.fs])
@@ -248,7 +252,7 @@ class measurement:
 #            #temp = np.transpose(temp)
 #            temp = np.concatenate((temp11,temp22),axis = 0)
              temp = np.concatenate(([cropgx1], [cropgy1], [cropgz1],[cropgx2], [cropgy2], [cropgz2]))
-             
+             #temp = np.concatenate(([cropgx1], [cropgx2]))
              #ajmo samo vektorski intenzitet
              #temp = np.concatenate(([cropgx1],[cropgx2]))
              crops.append(temp)
@@ -671,7 +675,7 @@ def CNNModel(inputShape, nConvLayers, kernel_size, kernel_constraint,nUnits,init
             x = MaxPooling1D((2),
                       padding = 'same')(x)
     
-    x = Dropout(0.6)(x)
+    x = Dropout(0.7)(x) #0.6!
     
     # Fully connected
     x = Flatten()(x)
@@ -725,7 +729,7 @@ def fitModel(model, modelName, Xtrain, Ytrain, Xval, Yval, epochs,batch_size):
 # SEPARATE APPROACH - AUTOENCODER INITIATED net
     # but you also need this for right hand only approach!!
 # =============================================================================
-
+nSeconds = 8
 dataTestRight = [x  for x in dataTest if (x.tap_task=='RHEO' or x.tap_task=='RHEC')]
 dataTestLeft = [x  for x in dataTest if (x.tap_task=='LHEO' or x.tap_task=='LHEC')]
 
@@ -760,8 +764,8 @@ epochs = 200
 batch_sizes = [16]
 kernelSizes = [11] #so far for pos in best 11
 res = []
-kernel_constraints = [3]
-nDenseUnits = [64]
+kernel_constraints = [2]
+nDenseUnits = [32]
 nInitialFilters = [32]
 
 for kernel_size in kernelSizes:
@@ -1099,7 +1103,8 @@ def plotConfMat(cm,cmPerc):
     plt.yticks(tick_marks,classes,size = 15)
     plt.ylabel('True label',size = 15)
     plt.xlabel('\nPredicted label',size = 15)
-    plt.style.use(['tableau-colorblind10'])
+    #plt.style.use(['tableau-colorblind10'])
+    #plt.rcParams['image.cmap'] = 'viridis'
     plt.title('Confusion matrix\n', size = 17)
     plt.show()
     return
@@ -1187,3 +1192,27 @@ def metrics(confmat):
     allcorrect = np.sum(correctly)
     acc = np.round(allcorrect*100/allall,2)
     return acc, precision, recall
+
+#%%
+    
+def hasWeights(layername):
+    ok = True
+    if "activation" in layername or\
+    "dropout" in layername or\
+    "FLAT" in layername  or\
+    "flatten" in layername or\
+    "input" in layername or\
+    "pooling" in layername or\
+    "ReLu" in layername or\
+    "reLu" in layername or\
+    "Softmax" in layername or\
+    "reshape" in layername:
+        ok = False
+    return ok
+
+
+from keras import backend as K    
+inp = model.input
+outs = [layer.output for layer in model.layers if hasWeights(layer.name)]
+functor = K.function([inp]+ [K.learning_phase()],outs)
+izlazi = functor([XtrainRight,0])
