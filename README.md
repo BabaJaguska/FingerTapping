@@ -1,8 +1,13 @@
-# FingerTapping
+# WORK IN PROGRESS
 
 
-Collected IMU and FSR data during finger tapping test from patients with neurological disorders and healthy controls.
+Collected *** data during *** test from patients with *** disorders and healthy controls.
 Working on computer-aided differential diagnostics. 
+
+Work in progress.
+
+------------
+Obsolete:
 
 To get a prediction for an unseen piece of data, start a local server and load model by running "ServeModel.py" (flask app).
 Navigate to the local server in your browser and choose a file (well, this is all very much local and the path of the directory is hard coded. Sorry.) Submit.
