@@ -10,6 +10,8 @@ from scipy.signal import decimate
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter, find_peaks
+# %matplotlib qt <-- for drawing in a separate window; to cancel use %matplotlib inline
+
 
 class measurement:
     def __init__(self, fsr,
@@ -421,27 +423,12 @@ class measurement:
             
             q75peak = np.quantile(peak_params['prominences'], 0.75)
             
-            print(q75peak)
             
             remove_idx = [i for i, idx in enumerate(peak_indices) if peak_params['prominences'][i] < q75peak/5 ]
             
             peak_indices = np.delete(peak_indices, remove_idx)
             
-            plt.subplot(2,1,1)
-            plt.plot(ref)
-            plt.plot(peak_indices, ref[peak_indices], 'r*')
-            
-            plt.subplot(2,1,2)
-            plt.plot(self.gyro1xT)
-            plt.plot(self.gyro1yT)
-            plt.plot(self.gyro1zT)
-            plt.plot(self.gyro2xT)
-            plt.plot(self.gyro2xT)
-            plt.plot(self.gyro2xT)
-            markerline, stemline, baseline = plt.stem(peak_indices, [10]*len(peak_indices), ':' ,use_line_collection = True)
-            plt.setp(markerline, markersize = 1)
-            
-            plt.show()
+
             
             
             
@@ -452,8 +439,15 @@ class measurement:
         taps = np.array(taps)
         
         order = ['Gyro Thumb X', 'Gyro Thumb Y', 'Gyro Thumb Z', 'Gyro Index X', 'Gyro Index Y', 'Gyro Index Z']
+        
+
             
-        return peak_indices, taps, order
+        return ref, peak_indices, taps, order
+    
+    def isRightHand(self):
+        if self.tap_task in ['RHEC', 'RHEO']:
+            return 1
+        return 0
         
             
 
