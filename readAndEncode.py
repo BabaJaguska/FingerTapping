@@ -49,7 +49,7 @@ def readPatientFiles(folder):
     
     data = []
     
-    for r, _, files in tqdm(os.walk(folder)):
+    for r, _, files in os.walk(folder):
         for file in files:
             data.append(readAdjust(os.path.join(r,file)))
             
