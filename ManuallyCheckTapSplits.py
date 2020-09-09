@@ -10,11 +10,21 @@ from readAndEncode import *
 from time import sleep
 import argparse
 import matplotlib
+from threading import Thread
+import json
 matplotlib.use('Qt5Agg')
 
 
 
 #%%
+
+def threaded(fn):
+    def wrapper(*args, **kwargs):
+        thread = Thread(target = fn, args = args, kwargs = kwargs)
+        thread.daemon = True
+        thread.start()
+        return thread
+    return wrapper
 
 class dataPlotter:
     def __init__(self):
@@ -39,7 +49,16 @@ class dataPlotter:
             else:
                 print('ALL DONE!')
             
-        
+        if event.key == 'm':
+            print('=========================================================')
+            print('Modifying current segmentation points')
+            print('=========================================================')
+            self.getUserInput()
+            
+        if event.key == 'q':
+            print('oops?')
+            
+            
     def connect_fig_close_event(self):
         self.cid = self.fig.canvas.mpl_connect('close_event', self.fig_close_handler)
         
@@ -53,6 +72,7 @@ class dataPlotter:
         self.plotData()
         
         
+    #@threaded
     def plotData(self):
         
         temp = self.data[self.mes_idx]
@@ -82,8 +102,62 @@ class dataPlotter:
     def draw(self):
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
-
         
+    @threaded
+    def getUserInput(self):
+        
+        measurementID = self.data[self.mes_idx]['measurement'].id
+        print(measurementID)
+        
+        pointsToAdd = []
+        pointsToSubtract = []
+        while True:
+            print('\na-Add points\ns-Subtract points\nx-Exit\n')
+            action = input("What would you like to do? (a|s|x): ")
+            if action == 'x':
+                print("Finished modifying. Return to the plot figure and press 'n' to inspect the next plot.")
+                print("Close the figure or press 'q' to finish all.")
+                break
+            
+            if action == 'a':
+                
+                while True:
+                    pointToAdd = input('Input x coordinate to add and press enter. To quit press "x"\n')
+                    if pointToAdd.lower() == 'x':
+                        break
+                    
+                    try:
+                        pointsToAdd.append(int(pointToAdd))
+                    except:
+                        print('>>>>> Invalid entry. <<<<<')
+                    
+            if action == 's':
+                while True:
+                    pointToSubtract = input('Input x coordinate to subtract and press enter. To quit press "x"\n')
+                    if pointToSubtract.lower() == 'x':
+                        break
+                    try:
+                        pointsToSubtract.append(int(pointToSubtract))
+                    except:
+                        print('>>>>> Invalid entry. <<<<<')
+                        
+            if action not in ['a', 's', 'x']:
+                print('>>>>> Invalid entry. <<<<<')
+        
+        modifier = {"id": measurementID,
+                    "add":pointsToAdd,
+                    "sub": pointsToSubtract}
+        
+        with open('./ModifyPoints.txt', 'a') as f:
+            print(json.dumps(modifier),file = f)
+                
+        
+        return
+
+
+
+
+
 
         
     
@@ -126,8 +200,15 @@ if __name__ == '__main__':
             allData.append(temp)
         
     # ======= PLOT =======
-    gui = dataPlotter()     
-    gui.beginPlotting(allData)         
+    gui = dataPlotter()       
+    gui.beginPlotting(allData) 
+    
+    #==== CHECK SAVED ====
+    modifiers = []
+    with open('./ModifyPoints.txt', 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            modifyFile = json.loads(line)
+            modifiers.append(modifyFile)
 
-
-        
+    print(modifiers)        
