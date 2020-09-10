@@ -30,7 +30,7 @@ class dataPlotter:
     def __init__(self):
         plt.ion()
         self.fig, self.ax = plt.subplots(2,1)
-        self.mes_idx = 0
+        self.mes_idx = -1
         self.connect_keypress_event()
         self.connect_fig_close_event()
         
@@ -43,9 +43,10 @@ class dataPlotter:
         if event.key == 'n':   
             if self.mes_idx < len(self.data):
                 print('PROCEEDING TO NEXT PLOT')
+                self.mes_idx += 1
                 self.plotData()
                 self.draw()
-                self.mes_idx += 1
+
             else:
                 print('ALL DONE!')
             
@@ -85,7 +86,7 @@ class dataPlotter:
         
         self.ax[0].plot(intermediate_signal)
         self.ax[0].plot(peak_indices, intermediate_signal[peak_indices], 'r*')
-        plt.title(fname)
+        
         
         self.ax[1].cla()
         self.ax[1].plot(mes.gyro1xT)
@@ -96,7 +97,7 @@ class dataPlotter:
         self.ax[1].plot(mes.gyro2xT)
         markerline, stemline, baseline = self.ax[1].stem(peak_indices, [10]*len(peak_indices), ':' ,use_line_collection = True)
         plt.setp(markerline, markersize = 1)
-        
+        plt.title(fname)
         
         
     def draw(self):
@@ -124,8 +125,7 @@ class dataPlotter:
                 while True:
                     pointToAdd = input('Input x coordinate to add and press enter. To quit press "x"\n')
                     if pointToAdd.lower() == 'x':
-                        break
-                    
+                        break                    
                     try:
                         pointsToAdd.append(int(pointToAdd))
                     except:
@@ -156,13 +156,70 @@ class dataPlotter:
 
 
 
+def addPoints(arr, points):
+    points = [point for point in points if point not in arr]
+    arr = np.append(arr, points)    
+    arr = np.sort(arr)
+    return arr
 
+def removePoints(arr, roughPoints):
+    
+    def closest(arr, point):
+        
+        if point in arr:
+            return point
+        
+        for pointCandidate in range(point - 3, point + 3):
+            if pointCandidate in arr:
+                return np.where(arr == pointCandidate)
+            
+        print('POINT {} NOT FOUND.'.format(point))
+        
+        return -1
+    
+    point_indices = [closest(arr, point) for point in roughPoints]     
+    
+    arr = np.delete(arr, point_indices)  
+    
+    return arr
 
+def modifySignalSplits(splitPoints, modifyDict):
+    
+    if modifyDict['add']:    
+        splitPoints = addPoints(splitPoints, modifyDict['add'])
+        
+    if modifyDict['sub']:
+        splitPoints = removePoints(splitPoints, modifyDict['sub'])
+    
+    return splitPoints
 
         
+def findMeasurementByID(data, ID):
     
+    for idx, datum in enumerate(data):
+        if datum['measurement'].id == ID:
+            return datum, idx
+        
+    print('COULD NOT FIND MEASUREMENT')
+    return
 
-
+def writeAllSignalSplitsToFile(data, filename):
+    
+    success = 1
+    try:
+        with open(filename, 'a') as f:
+            for datum in data:
+                temp = {'id': datum['measurement'].id,
+                        'allSplitPoints': datum['peak_indices'].tolist()}
+                print(json.dumps(temp), file = f)
+    except:
+        success = 0
+        print('Could not write to file ', filename)
+            
+    return success
+            
+            
+    
 
 
         
@@ -181,7 +238,7 @@ if __name__ == '__main__':
   
 
     
-    # READ DATA 
+    # ======= READ DATA =======
     allPatientFolders, allPatientDiagnoses = getUniquePatients(dataPath)
     
     allData = []
@@ -193,22 +250,46 @@ if __name__ == '__main__':
                 continue
             
             temp = {}
-            intermediate_signal, peak_indices, _, _ = mes.splitTaps()
+            intermediate_signal, peak_indices = mes.findTapSplits()
             temp['intermediate_signal'] = intermediate_signal
             temp['peak_indices'] = peak_indices
             temp['measurement'] = mes
             allData.append(temp)
+            
+#%%
         
     # ======= PLOT =======
     gui = dataPlotter()       
     gui.beginPlotting(allData) 
     
+#%%
+    
     #==== CHECK SAVED ====
     modifiers = []
-    with open('./ModifyPoints.txt', 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            modifyFile = json.loads(line)
-            modifiers.append(modifyFile)
+    try:
+        with open('./ModifyPoints.txt', 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                modifyFile = json.loads(line)
+                modifiers.append(modifyFile)
+    except:
+        print('Could not read the requested file.')
 
-    print(modifiers)        
+    # print(modifiers)
+    
+    # ========= MODIFY SPLIT POINTS ========
+    for modifierDict in modifiers:
+        print('Modifying ', modifierDict['id'])
+        tempDatum, idx = findMeasurementByID(allData, modifierDict['id'])
+        tempSplits = tempDatum['peak_indices']
+        allData[idx]['peak_indices'] = modifySignalSplits(tempSplits, modifierDict)
+        
+    
+    # === Write all splits to file
+    fileToWriteAll = './allSplits.txt'
+    writeAllSignalSplitsToFile(allData, fileToWriteAll)
+    
+    # === Check the new splits ====
+    
+    
+    

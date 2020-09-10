@@ -9,7 +9,7 @@ Created on Wed Sep  2 22:59:23 2020
 from scipy.signal import decimate
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import butter, lfilter, find_peaks
+from scipy.signal import butter, filtfilt, find_peaks
 # %matplotlib qt <-- for drawing in a separate window; to cancel use %matplotlib inline
 
 
@@ -103,7 +103,7 @@ class measurement:
         
         # normalize FSR
         self.normalizedFSR = self.fsr/self.mvcSustained
-        self.id = self.diagnosis + '_' + self.initials + '_' +self.date 
+        self.id = '_'.join([self.diagnosis, self.initials, self.date, self.timeOfMeasurement])
         
         
         self.gyro1xT = self.gyro1x[int(self.ttapstart*self.fs):int(self.ttapstop*self.fs)]
@@ -384,9 +384,8 @@ class measurement:
                 
         return maxAxis, maxAxisVal, maxAxisName
     
-    def splitTaps(self, method = 'PanTompkins'):
+    def findTapSplits(self, method = 'PanTompkins'):
         
-        taps = []
         
         if method == 'PanTompkins':
             
@@ -404,35 +403,29 @@ class measurement:
             low = lowcut / nyquist_freq
             high = highcut / nyquist_freq
             b, a = butter(filter_order, [low, high], btype="band")
-            ref = lfilter(b, a, ref)
+            ref = filtfilt(b, a, ref, method = 'gust')
             
             # accentuate peaks
-            
             ref = np.power(ref, 2) * np.sign(ref)
             
-            
-
-            
+                   
             # find peaks (minima)
-            
-            
-
-            
             peak_indices, peak_params = find_peaks(-ref, 
                                          prominence = 1) # flip signal
             
             q75peak = np.quantile(peak_params['prominences'], 0.75)
             
             
+            # remove too small peaks
             remove_idx = [i for i, idx in enumerate(peak_indices) if peak_params['prominences'][i] < q75peak/5 ]
-            
             peak_indices = np.delete(peak_indices, remove_idx)
-            
 
             
-            
-            
-            
+        return ref, peak_indices
+    
+    def splitTaps(self, peak_indices):
+        
+        taps = []
         for rawSig in [self.gyro1xT, self.gyro1yT, self.gyro1zT, self.gyro2xT, self.gyro2yT, self.gyro2zT]:
             taps.append(np.split(rawSig, peak_indices))
             
@@ -440,9 +433,7 @@ class measurement:
         
         order = ['Gyro Thumb X', 'Gyro Thumb Y', 'Gyro Thumb Z', 'Gyro Index X', 'Gyro Index Y', 'Gyro Index Z']
         
-
-            
-        return ref, peak_indices, taps, order
+        return taps, order
     
     def isRightHand(self):
         if self.tap_task in ['RHEC', 'RHEO']:
