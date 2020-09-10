@@ -13,6 +13,7 @@ from scipy import io
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from matplotlib import pyplot as plt
+import json
 
 
 def readAdjust(filename):
@@ -154,3 +155,62 @@ def getUniquePatients(root):
     print('There are a total of {} unique patients'.format(len(allPatientFolders)))
     
     return allPatientFolders, allPatientDiagnoses
+
+def readAllDataAndAutoSplit(dataPath):
+    
+    print('Reading all relevant data. Auto-splitting taps...\n')     
+  
+    allData = []
+    allPatientFolders, allPatientDiagnoses = getUniquePatients(dataPath)
+    
+    for patientFolder in tqdm(allPatientFolders):
+        currentPatientMeasurements = readPatientFiles(patientFolder)
+        for mes in currentPatientMeasurements:
+            if not mes.isRightHand():
+                continue
+            
+            temp = {}
+            intermediate_signal, peak_indices = mes.findTapSplits()
+            temp['intermediate_signal'] = intermediate_signal
+            temp['peak_indices'] = peak_indices
+            temp['measurement'] = mes
+            allData.append(temp)
+    return allData
+
+def readAllDataAndSplitFromTxt(dataPath, txtfile):
+    print('Reading all relevant data. Reading split points from file...\n')     
+  
+    allData = []
+    allPatientFolders, allPatientDiagnoses = getUniquePatients(dataPath)
+    
+    splitDicts = []
+    with open(txtfile, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            temp = json.loads(line)
+            temp['allSplitPoints'] = [int(point) for point in temp['allSplitPoints']]
+            splitDicts.append(temp)
+            
+        
+    
+    k = -1
+    for patientFolder in tqdm(allPatientFolders):
+        currentPatientMeasurements = readPatientFiles(patientFolder)
+        for mes in currentPatientMeasurements:
+            if not mes.isRightHand():
+                continue
+            k += 1
+            temp = {}
+            intermediate_signal, _ = mes.findTapSplits()
+            temp['intermediate_signal'] = intermediate_signal
+            temp['peak_indices'] = splitDicts[k]['allSplitPoints']
+            temp['measurement'] = mes
+            allData.append(temp)
+            if splitDicts[k]['id'] != mes.id:
+                raise('ID MISMATCH!!!!')
+            
+            
+    return allData
+
+
+            
