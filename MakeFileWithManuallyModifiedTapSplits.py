@@ -26,7 +26,7 @@ def removePoints(arr, roughPoints):
     def closest(arr, point):
         
         if point in arr:
-            return point
+            return np.where(arr == point)
         
         for pointCandidate in range(point - 3, point + 3):
             if pointCandidate in arr:
@@ -81,7 +81,14 @@ def writeAllSignalSplitsToFile(data, filename):
 #%%
 
 dataPath = r'C:\data\icef\tapping\raw data'
-allData = readAllDataAndAutoSplit(dataPath)
+splitFile = 'ModifyPoints.txt'
+method = 'auto'
+
+if method == 'auto':
+    allData = readAllDataAndAutoSplit(dataPath)
+    
+elif method == 'file':  # in case you have two files with modifying indices
+    allData = readAllDataAndSplitFromTxt(dataPath, splitFile)
     
 #==== CHECK SAVED ====
 modifiers = []
