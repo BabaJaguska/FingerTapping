@@ -18,27 +18,28 @@ import json
 
 def longestTapInSequence(splitSequence):
     
-    maxSequenceLen = 0
+    maxSequenceLen = -1
     whichTap = -1
-    meanTapLenInSeq = 0
+    sumTapLenInSeq = 0
     allTapLensInSeq = []
     
     for i in range(0,splitSequence.shape[1]):
 
         temp = len(splitSequence[1,i])
-        meanTapLenInSeq += temp
+        sumTapLenInSeq += temp
         allTapLensInSeq.append(temp)
+
         if temp > maxSequenceLen:
             maxSequenceLen = temp
             whichTap = i
             
-    meanTapLenInSeq = meanTapLenInSeq/splitSequence.shape[1]
+    meanTapLenInSeq = sumTapLenInSeq/splitSequence.shape[1]
     return maxSequenceLen, whichTap, meanTapLenInSeq, allTapLensInSeq
 
 
 def longestTapInAllData(allSplits):
     
-    maxSequenceLen = 0
+    maxSequenceLen = -1
     sequenceIdx = -1
     tapIdx = -1
     
@@ -53,6 +54,12 @@ def longestTapInAllData(allSplits):
             maxSequenceLen = tempMax
             sequenceIdx = i
             tapIdx = tempWhichTap
+            
+        if sum(np.array(allTapLensInSeq)<5):
+            print('DUDE!')
+            print('Sequence ', i)
+            
+
             
     return maxSequenceLen, sequenceIdx, tapIdx, allMeanLens, allTapLens
 
@@ -73,13 +80,6 @@ allData = readAllDataAndSplitFromTxt(dataPath, txtfile)
 # split[1,34].shape # prvi kanal (osa ziroskopa), 34i tap
 
 
-plt.figure()
-plt.plot(split[1,34])
-plt.plot(split[2,34])
-plt.plot(split[3,34])
-plt.show()
-
-
 allSplitsTemp = [dataPoint['measurement'].splitTaps(dataPoint['peak_indices']) for dataPoint in allData]
 
 allSplits = [split[0] for split in allSplitsTemp]
@@ -97,10 +97,6 @@ for axis in maxTapWinner:
     plt.plot(axis)
 plt.show()
 
-plt.figure()
-plt.hist(allMeanLens)
-plt.title('Tap length distribution')
-plt.show()
 
 allDiagnoses = [dataPoint['measurement'].diagnosis for dataPoint in allData]
 
@@ -129,4 +125,18 @@ plt.bar(['CTRL', 'MSA', 'PD', 'PSP'],numTapsByDiagnosis)
 plt.title('Total number of taps by diagnosis')
 plt.show()
 
+#how about all taps in dataset?
 
+allTapsInDataset = diagConcats.sum()
+plt.figure()
+plt.subplot(1,2,1)
+plt.boxplot(allTapsInDataset)
+plt.title('All taps in dataset: boxplot')
+plt.subplot(1,2,2)
+plt.hist(allTapsInDataset)
+plt.title('All taps in dataset: histogram')
+plt.show()
+
+medianTapLen = np.median(allTapsInDataset)
+print('MEDIAN tap length: ', medianTapLen)
+print('MAX tap length: {} for tap {} in sequence {}. Diagnosis: {} '.format(maxTapLen, whichTap, whichSequence, maxMeasurementWinner.diagnosis))
