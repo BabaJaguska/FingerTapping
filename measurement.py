@@ -427,7 +427,10 @@ class measurement:
         
         taps = []
         for rawSig in [self.gyro1xT, self.gyro1yT, self.gyro1zT, self.gyro2xT, self.gyro2yT, self.gyro2zT]:
-            taps.append(np.split(rawSig, peak_indices))
+            
+            temp = np.split(rawSig, peak_indices)
+            
+            taps.append(temp[1:-1])
             
         taps = np.array(taps)
         
