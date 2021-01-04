@@ -21,7 +21,7 @@ from sklearn.preprocessing import LabelEncoder
 #import keras
 from keras.models import Model, load_model
 from keras.layers import Input, Conv1D, Flatten, Dropout, MaxPooling1D, Dense, Reshape,UpSampling1D
-from keras.layers import Activation, BatchNormalization, concatenate
+from keras.layers import Activation, BatchNormalization
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.constraints import max_norm

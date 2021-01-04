@@ -8,7 +8,6 @@ Created on Mon Mar 25 13:37:11 2019
 # =============================================================================
 #  load stuff
 # =============================================================================
-import numpy as np
 import time
 
 from tqdm import tqdm
@@ -17,8 +16,8 @@ from tqdm import tqdm
 from sklearn.model_selection import StratifiedKFold
 #import keras
 from keras.models import Model, load_model
-from keras.layers import Input, Conv1D, Flatten, Dropout, MaxPooling1D, Dense, Reshape,UpSampling1D
-from keras.layers import Activation, BatchNormalization, concatenate
+from keras.layers import Input, Conv1D, Flatten, Dropout, MaxPooling1D, Dense, Reshape, UpSampling1D
+from keras.layers import Activation, BatchNormalization
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.constraints import max_norm
@@ -27,7 +26,7 @@ import os
 
 from sklearn.metrics import confusion_matrix
 import itertools
-# from keras import backend as K   
+# from keras import backend as K
 
 
 from readAndEncode import *

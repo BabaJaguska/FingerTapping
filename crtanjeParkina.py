@@ -8,6 +8,8 @@ Created on Wed Jun  5 14:39:40 2019
 import numpy as np
 from matplotlib import pyplot as plt
 
+#from TappingRedoneTransforms import XtrainRight
+from TappingRedone import XtrainRight
 
 t = np.linspace(0,3,600)
 

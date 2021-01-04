@@ -4,8 +4,7 @@ Created on Wed Sep  2 22:59:23 2020
 
 @author: minja
 """
-
-
+from numpy import ma
 from scipy.signal import decimate
 import numpy as np
 import matplotlib.pyplot as plt
