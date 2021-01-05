@@ -111,9 +111,11 @@ load_all = False
 # =============================================================================
 
 default_results_path = './results/'
-default_root_path = './raw data/'
+#default_root_path = './raw data/'
+default_root_path = 'C:/data/icef/tapping/raw data/'
 default_results_file = 'result.txt'
 splits_file = './allSplits.txt'
+data_packing_type = 'Minja' # or 'Zaki'
 
 show_all = 0
 decimal_places = 4

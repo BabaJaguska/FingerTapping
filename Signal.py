@@ -11,6 +11,8 @@ import Diagnosis
 import Parameters
 import Tap
 
+from pathlib import Path
+
 
 class Signal:
     def __init__(self, file, fsr,
@@ -220,6 +222,39 @@ def load(root, directory, file):
 
     return temp
 
+def load_minja(root, directory, file):
+    
+    fullpath = os.path.join(root, directory, file)
+    
+    sig = io.loadmat(fullpath)
+    
+    diagnosisFolder = Path(fullpath).parents[1]
+    
+    diagnosis = os.path.basename(diagnosisFolder)
+    
+    fsr = sig['fsr'][0]
+    gyro1x = sig['gyro1'][0]
+    gyro1y = sig['gyro1'][1]
+    gyro1z = sig['gyro1'][2]
+    gyro2x = sig['gyro2'][0]
+    gyro2y = sig['gyro2'][1]
+    gyro2z = sig['gyro2'][2]
+    tap_task = sig['tap_task'][0]
+    time = sig['time'][0]
+    time_tap = sig['time_tap'][0]
+    ttapstart = sig['ttapstart'][0,0]
+    ttapstop = sig['ttapstop'][0,0]
+    initials = file[0:2]
+    date = file[3:13]
+    time_of_measurement = file[14:22]
+    ThumbWVD = []
+    IndexWVD = []
+
+    temp = Signal(file, fsr, gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, ThumbWVD, IndexWVD, tap_task, time,
+                  time_tap, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
+
+    return temp
+
 
 def load_all(root=Parameters.default_root_path, taps_file=Parameters.splits_file):
     signals = load_all_signals(root)
@@ -241,7 +276,10 @@ def load_all_signals(root=Parameters.default_root_path):
         for subdir in subdirs:
             dir_name = root + current_dir + '/' + subdir + '/'
             _, _, files1 = os.walk(dir_name).__next__()
-            signals = signals + [load(root, current_dir, subdir + '/' + file) for file in files1]
+            if Parameters.data_packing_type == 'Zaki':
+                signals = signals + [load(root, current_dir, subdir + '/' + file) for file in files1]
+            else:
+                signals = signals + [load_minja(root, current_dir, subdir + '/' + file) for file in files1]
     return signals
 
 
