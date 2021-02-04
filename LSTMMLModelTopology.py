@@ -14,8 +14,8 @@ class LSTMMLModelTopology(ConfigurableMLModelTopology):
         self.optimizer = MachineLearningModel.get_optimizer_adam
         self.compile_model = MachineLearningModel.compile_model
 
-        self.to_string_formatter = 'RNNMLModel [{}]'
-        self.model_name = 'RNNShuffled' + str(self.batch_size) + 'Batch' + str(
+        self.to_string_formatter = 'LTSMMLModel [{}]'
+        self.model_name = 'LSTM' + str(self.batch_size) + 'Batch' + str(
             self.nConvLayers) + 'ConvLayers' + str(self.kernel_size) + 'KERNEL' + str(
             self.nUnits) + 'DenseUnits' + str(self.initialFilters) + 'initFilt' + '{:.2f}'.format(
             self.dropout_rate1) + 'do' + '{:.2f}'.format(self.dropout_rate2) + 'do'

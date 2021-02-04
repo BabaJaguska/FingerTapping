@@ -3,14 +3,13 @@ import Signal
 
 
 class Test:
-    def __init__(self, combinations, test_type, train_data=None, validation_data=None, test_data=None,
-                 signals=None, start_time=0, end_time=0, train_percent=0, test_percent=0, is_loaded=True):
-        self.combinations = combinations
+    def __init__(self, test_type, train_data=None, validation_data=None, test_data=None,
+                 measurements=None, start_time=0, end_time=0, train_percent=0, test_percent=0, is_loaded=True):
         self.test_type = test_type
         self.train_data = train_data
         self.validation_data = validation_data
         self.test_data = test_data
-        self.signals = signals
+        self.measurements = measurements
         self.start_time = start_time
         self.end_time = end_time
         self.train_percent = train_percent
@@ -20,14 +19,16 @@ class Test:
         return
 
     def __str__(self):
-        if self.is_loaded:
-            result = '{}[train: {}, validation: {}, test: {}]'.format(self.test_type, len(self.train_data[0]),
-                                                                      len(self.validation_data[0]),
-                                                                      len(self.test_data[0]))
+        if self.is_loaded or ((self.train_data is not None) and (self.validation_data is not None) and (
+                self.test_data is not None)):
+            result = '{}[train: {}, validation: {}, test: {}]'.format(self.test_type, len(self.train_data),
+                                                                      len(self.validation_data),
+                                                                      len(self.test_data))
         else:
-            result = 'NL {}[train: {}, validation: {:.2f}, test: {}]'.format(self.test_type, self.train_percent,
-                                                                             1 - self.train_percent - self.test_percent,
-                                                                             self.test_percent)
+            result = 'NL {}[train: {:.2f}, validation: {:.2f}, test: {:.2f}]'. \
+                format(self.test_type, self.train_percent,
+                       1 - self.train_percent - self.test_percent,
+                       self.test_percent)
 
         return result
 

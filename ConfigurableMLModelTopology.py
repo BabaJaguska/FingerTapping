@@ -19,7 +19,7 @@ class ConfigurableMLModelTopology(MLModelTopology):
         return
 
     def init_model(self, data_x, data_y):
-        self.model = self.init_operation(data_x, data_y, self.nConvLayers, self.kernel_size, self.stride,
+        self.model = self.init_operation(self.get_x(data_x), data_y, self.nConvLayers, self.kernel_size, self.stride,
                                          self.kernel_constraint, self.nUnits, self.initialFilters,
                                          self.dropout_rate1, self.dropout_rate2)
         # self.model.summary()

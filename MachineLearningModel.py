@@ -4,7 +4,7 @@ import numpy as np
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.constraints import max_norm
-from keras.layers import Activation, BatchNormalization, GlobalAveragePooling1D
+from keras.layers import Activation, BatchNormalization, GlobalAveragePooling1D, TimeDistributed, Conv2D, MaxPool2D
 from keras.layers import Input, Conv1D, Flatten, MaxPooling1D, Reshape, UpSampling1D
 from keras.layers import LSTM, Dense, Dropout
 from keras.layers.merge import concatenate
@@ -74,20 +74,41 @@ def CNNModel(train_data_x, train_data_y, nConvLayers, kernel_size, stride, kerne
 # SEQUENTIAL MODEL TOPOLOGY
 # =============================================================================
 def CNNSequentialModel(train_data_x, train_data_y, nConvLayers, kernel_size, stride, kernel_constraint, nUnits,
-                       initialFilters,
-                       dropout1, dropout2):
+                       initialFilters, dropout1, dropout2):
     shape = (train_data_x.shape[1:])
     output_size = train_data_y.shape[1]
     model = Sequential()
-    model.add(Conv1D(initialFilters, kernel_size, padding='same', activation='relu', input_shape=shape))
-    model.add(Conv1D(initialFilters, kernel_size, padding='same', activation='relu'))
+    model.add(Conv1D(initialFilters, kernel_size, padding='same', activation='relu', strides=stride, input_shape=shape
+                     ))
+    model.add(Conv1D(initialFilters, kernel_size, padding='same', activation='relu', strides=stride))
     model.add(MaxPooling1D(pool_size=2))
-    model.add(Conv1D(2 * initialFilters, kernel_size, padding='same', activation='relu'))
-    model.add(Conv1D(2 * initialFilters, kernel_size, padding='same', activation='relu'))
+    model.add(Conv1D(2 * initialFilters, kernel_size, padding='same', activation='relu', strides=stride))
+    model.add(Conv1D(2 * initialFilters, kernel_size, padding='same', activation='relu', strides=stride))
     model.add(GlobalAveragePooling1D())
     model.add(Dropout(dropout1))
     model.add(Dense(output_size, activation='softmax'))
 
+    return model
+
+
+def CNNSequential2DModel(train_data_x, train_data_y, nConvLayers, kernel_size, stride, kernel_constraint, nUnits,
+                         initialFilters, dropout1, dropout2):
+    shape = (train_data_x.shape[1:])
+    output_size = train_data_y.shape[1]
+    model = Sequential()
+    model.add(Conv2D(initialFilters, kernel_size, padding="same", activation="relu", input_shape=shape))
+    model.add(MaxPool2D())
+
+    model.add(Conv2D(initialFilters, kernel_size, padding="same", activation="relu"))
+    model.add(MaxPool2D())
+
+    model.add(Conv2D(2 * initialFilters, kernel_size, padding="same", activation="relu"))
+    model.add(MaxPool2D())
+    model.add(Dropout(dropout1))
+
+    model.add(Flatten())
+    model.add(Dense(nUnits, activation="relu"))
+    model.add(Dense(output_size, activation="softmax"))
     return model
 
 
@@ -101,8 +122,9 @@ def LSTMModel(train_data_x, train_data_y, nConvLayers, kernel_size, stride, kern
     # TODO unaprediti model
     model = Sequential()
 
-    # Recurrent layer
-    model.add(LSTM(units=kernel_size, input_shape=shape, return_sequences=False, dropout=0.1, recurrent_dropout=0.1))
+    # Recurrent layers
+    model.add(LSTM(units=kernel_size, input_shape=shape, return_sequences=False, dropout=0.1,
+                   recurrent_dropout=0.1))
 
     # Fully connected layer
     model.add(Dense(nUnits, activation='relu'))
@@ -187,7 +209,9 @@ def CNNRandomModel(train_data_x, train_data_y, layers, filter_size, stride, kern
 
 def MultiHeadedModel(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, stride=1, kernel_constraint=0, nUnits=64,
                      initialFilters=32, dropout1=0.6, dropout2=0.7):
-    n_timesteps, n_features, n_outputs = train_data_x.shape[1], train_data_x.shape[2], train_data_y.shape[1]
+    train_data = train_data_x[0]
+    n_timesteps, n_features = train_data.shape[1], train_data.shape[2]
+    n_outputs = train_data_y.shape[1]
     inputs = []
     flats = []
     for i in range(nConvLayers):
@@ -217,8 +241,7 @@ def MultiHeadedModel(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, s
 # =============================================================================
 
 def MultiHeadedModel1(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, stride=1, kernel_constraint=3,
-                      nUnits=64,
-                      initialFilters=32, dropout1=0.6, dropout2=0.7):
+                      nUnits=64, initialFilters=32, dropout1=0.6, dropout2=0.7):
     n_timesteps, n_features, n_outputs = train_data_x.shape[1], train_data_x.shape[2], train_data_y.shape[1]
     inputs = []
     flats = []
@@ -260,6 +283,70 @@ def MultiHeadedModel1(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, 
     x = Activation('softmax', name='Softmax')(x)
 
     model = Model(inputs=inputs, outputs=x)
+
+    return model
+
+
+# =============================================================================
+# CNN-LSTM MODEL TOPOLOGY
+# =============================================================================
+
+def CNNLSTMModel(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, stride=1, kernel_constraint=3,
+                 nUnits=64, initialFilters=32, dropout1=0.6, dropout2=0.7):
+    # TODO ovo ne radi
+    n_timesteps, n_features, n_outputs = train_data_x.shape[1], train_data_x.shape[2], train_data_y.shape[1]
+    # reshape data into time steps of sub-sequences
+    n_steps, n_length = 4, 32
+    # define model
+    model = Sequential()
+    model.add(
+        TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu'), input_shape=(None, n_length, n_features)))
+    model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu')))
+    model.add(TimeDistributed(Dropout(0.5)))
+    model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
+    model.add(TimeDistributed(Flatten()))
+    model.add(LSTM(100))
+    model.add(Dropout(0.5))
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(n_outputs, activation='softmax'))
+
+    return model
+
+    shape = (train_data_x.shape[1:])
+    input1 = Input(shape=shape)
+    output_size = train_data_y.shape[1]
+
+    model = Sequential()
+
+    # TODO ovno ne radi
+    model.add(
+        TimeDistributed(Conv1D(filters=64, kernel_size=3, padding='same', strides=1, kernel_initializer='he_normal'),
+                        input_shape=input1))
+    model.add(TimeDistributed(BatchNormalization()))
+    model.add(TimeDistributed(Activation('relu')))
+    model.add(TimeDistributed(MaxPooling1D(pool_size=2, padding='same')))
+
+    model.add(
+        TimeDistributed(Conv1D(filters=128, kernel_size=3, padding='same', strides=1, kernel_initializer='he_normal')))
+    model.add(TimeDistributed(BatchNormalization()))
+    model.add(TimeDistributed(Activation('relu')))
+
+    for i in range(8):
+        model.add(TimeDistributed(
+            Conv1D(filters=256, kernel_size=3, padding='same', strides=1, kernel_initializer='he_normal')))
+        model.add(TimeDistributed(BatchNormalization()))
+        model.add(TimeDistributed(Activation('relu')))
+        model.add(TimeDistributed(MaxPooling1D(pool_size=2, padding='same')))
+
+    model.add(TimeDistributed(Flatten()))
+    model.add(TimeDistributed(BatchNormalization()))
+
+    model.add(LSTM(units=32, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))
+    model.add(TimeDistributed(BatchNormalization()))
+    model.add(LSTM(units=32, return_sequences=True, dropout=0.1, recurrent_dropout=0.1))
+    model.add(BatchNormalization())
+    model.add(Dense(output_size, activation='relu'))
+    model.add(Activation('softmax'))
 
     return model
 

@@ -1,5 +1,6 @@
 import math
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,8 +11,6 @@ from tqdm import tqdm
 import Diagnosis
 import Parameters
 import Tap
-
-from pathlib import Path
 
 
 class Signal:
@@ -222,16 +221,16 @@ def load(root, directory, file):
 
     return temp
 
+
 def load_minja(root, directory, file):
-    
     fullpath = os.path.join(root, directory, file)
-    
+
     sig = io.loadmat(fullpath)
-    
+
     diagnosisFolder = Path(fullpath).parents[1]
-    
+
     diagnosis = os.path.basename(diagnosisFolder)
-    
+
     fsr = sig['fsr'][0]
     gyro1x = sig['gyro1'][0]
     gyro1y = sig['gyro1'][1]
@@ -242,11 +241,19 @@ def load_minja(root, directory, file):
     tap_task = sig['tap_task'][0]
     time = sig['time'][0]
     time_tap = sig['time_tap'][0]
-    ttapstart = sig['ttapstart'][0,0]
-    ttapstop = sig['ttapstop'][0,0]
+    ttapstart = sig['ttapstart'][0, 0]
+    ttapstop = sig['ttapstop'][0, 0]
     initials = file[0:2]
     date = file[3:13]
     time_of_measurement = file[14:22]
+    if file[2].isdigit():
+        initials = file[0:2]
+        date = file[14:24]
+        time_of_measurement = file[25:33]
+    else:
+        initials = file[0:3]
+        date = file[16:26]
+        time_of_measurement = file[27:35]
     ThumbWVD = []
     IndexWVD = []
 

@@ -10,12 +10,12 @@ import Parameters
 
 
 class Result:
-    def __init__(self, model, combinations, test_type, configuration, history, test_accuracy, train_accuracy,
+    def __init__(self, model, conversions, test_type, configuration, history, test_accuracy, train_accuracy,
                  validation_accuracy,
                  avg_test_accuracy, avg_train_accuracy, avg_validation_accuracy, confuse_matrix):
 
         self.model = model
-        self.combinations = combinations
+        self.conversions = conversions
         self.test_type = test_type
         self.configuration = configuration
         self.history = history
@@ -40,7 +40,7 @@ class Result:
 
             res = formatter.format(
                 str(self.model),
-                str(self.combinations),
+                str(self.conversions),
                 self.test_type,
                 ConfigurationGenerator.to_string(self.configuration),
                 clean(self.train_accuracy, decimal_places),
@@ -163,8 +163,8 @@ def show_history(history, model_name, plot=1):
 
 def show_max_accuracy(results, plot=1):
     max_accuracy = 0
-    max_result = []
-    cm = []
+    max_result = None
+    cm = None
 
     for result in results:
         confuse_matrix = result.confuse_matrix
@@ -180,6 +180,8 @@ def show_max_accuracy(results, plot=1):
 
     # plot
     if plot == 1:
-        plot_confuse_matrix(cm, 'Overall ' + str(max_result.model))
-
+        if max_result is not None:
+            plot_confuse_matrix(cm, 'Overall ' + str(max_result.model))
+        else:
+            print('!!!!No confuse matrix!!!\n')
     return

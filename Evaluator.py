@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 import numpy as np
 
@@ -7,32 +8,33 @@ import Result
 import TestGenerator
 
 
-def multiple_evaluations(tests, models, path=Parameters.default_results_path,
+def multiple_evaluations(tests, models, list_of_conversions, path=Parameters.default_results_path,
                          result_file=Parameters.default_results_file):
     results = []
+    for conversions in list_of_conversions:
+        for model in models:
+            try:
+                print(str(model))
+                model_results = []
+                for test in tests:
+                    converted_test = TestGenerator.convert_test(test, conversions)
+                    res = single_evaluation(converted_test, model, conversions, path)
+                    model_results.append(res)
 
-    for model in models:
-        try:
-            print(str(model))
-            model_results = []
-            for test in tests:
-                test = TestGenerator.load_test(test)
-                res = single_evaluation(test, model, path)
-                model_results.append(res)
+                res = combine_model_results(model_results)
+                results.append(res)
 
-            res = combine_model_results(model_results)
-            results.append(res)
+                res.save(path + result_file)
+                show_evaluation_results_info([res], plot=1)
 
-            res.save(path + result_file)
-            show_evaluation_results_info([res], plot=1)
-
-        except:
-            print("An exception occurred {}".format(str(model)), sys.exc_info())
+            except:
+                print("An exception occurred {}".format(str(model)), sys.exc_info())
+                traceback.print_exc()
 
     return results
 
 
-def single_evaluation(test, model, path,
+def single_evaluation(test, model, conversions, path,
                       number_of_tries_per_configurations=Parameters.number_of_tries_per_configurations,
                       epochs=Parameters.epochs):
     validation_accuracies = []
@@ -67,7 +69,7 @@ def single_evaluation(test, model, path,
         Result.show_confuse_matrix(confuse_matrix, str(model) + str(i), plot=Parameters.show_all)
 
     res = Result.Result(model=model,
-                        combinations=test.combinations,
+                        conversions=conversions,
                         test_type=test.test_type,
                         configuration=model.get_configuration(),
                         history=histories,
@@ -84,7 +86,7 @@ def single_evaluation(test, model, path,
 def combine_model_results(model_results):
     model = model_results[0].model
     configuration = model_results[0].configuration
-    combinations = model_results[0].combinations
+    conversions = model_results[0].conversions
 
     test_type = model_results[0].test_type
 
@@ -115,7 +117,7 @@ def combine_model_results(model_results):
             cms = cms + cm
 
     res = Result.Result(model=model,
-                        combinations=combinations,
+                        conversions=conversions,
                         test_type=test_type,
                         configuration=configuration,
                         history=histories,
