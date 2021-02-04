@@ -21,6 +21,17 @@ def create_configurations(configuration_type):
 def create_configurations_random_attr(cnt, attributes_values=(), add_default=1):
     result = []
     result_tags = set()
+    if add_default == 1:
+        val = {}
+        for attribute in attributes_values:
+            attribute_name = attribute[0]
+            def_val = attribute[1]
+            val[attribute_name] = def_val
+        val_tag = str(val)
+        if val_tag not in result_tags:
+            result.append(val)
+            result_tags.add(val_tag)
+
     while len(result) < cnt:
         val = {}
         for attribute in attributes_values:
@@ -39,6 +50,12 @@ def create_configurations_random_attr(cnt, attributes_values=(), add_default=1):
             result.append(val)
             result_tags.add(val_tag)
 
+    return result
+
+
+def create_configurations_random_one_attr(cnt, attributes_values=(), add_default=1):
+    result = []
+    result_tags = set()
     if add_default == 1:
         val = {}
         for attribute in attributes_values:
@@ -49,12 +66,7 @@ def create_configurations_random_attr(cnt, attributes_values=(), add_default=1):
         if val_tag not in result_tags:
             result.append(val)
             result_tags.add(val_tag)
-    return result
 
-
-def create_configurations_random_one_attr(cnt, attributes_values=(), add_default=1):
-    result = []
-    result_tags = set()
     while len(result) < cnt:
         val = {}
         for attribute in attributes_values:
@@ -79,16 +91,6 @@ def create_configurations_random_one_attr(cnt, attributes_values=(), add_default
             result.append(val)
             result_tags.add(val_tag)
 
-    if add_default == 1:
-        val = {}
-        for attribute in attributes_values:
-            attribute_name = attribute[0]
-            def_val = attribute[1]
-            val[attribute_name] = def_val
-        val_tag = str(val)
-        if val_tag not in result_tags:
-            result.append(val)
-            result_tags.add(val_tag)
     return result
 
 

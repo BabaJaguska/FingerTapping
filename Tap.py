@@ -267,6 +267,30 @@ def taps_to_sorted_signal(taps, reverse=False):
     return result
 
 
+def taps_to_first_matrix_signal(taps, max_tap_len=Parameters.max_tap_len, max_taps=Parameters.max_taps):
+    result = []
+    if len(taps) == 0: return result
+
+    shape = taps[0].shape[0] if len(taps[0].shape) > 1 else (1)
+
+    for index in range(max_tap_len):
+        for k in range(max_taps):
+            if k < len(taps):
+                tap = taps[k]
+                if tap.shape[-1] > index:
+                    a = tap[:, index] if len(tap.shape) > 1 else tap[index]
+                    result.append(a)
+                else:
+                    null_data = np.zeros(shape)
+                    result.append(null_data)
+            else:
+                null_data = np.zeros(shape)
+                result.append(null_data)
+
+    result = concatenate_taps(result, False)
+    return result
+
+
 def concatenate_taps(taps, scalar=True):
     if len(taps) > 0:
         tl = len(taps[0].shape)

@@ -67,12 +67,13 @@ def main():
 
                 taps_ordered = [Tap.taps_to_ordered_signal(crop_taps, crop_signal)]
                 taps_reverse_ordered = [Tap.taps_to_reverse_ordered_signal(crop_taps, crop_signal)]
-                taps_min_ordered = Tap.taps_to_min_sorted_signal(crop_taps)
-                taps_max_ordered = Tap.taps_to_max_sorted_signal(crop_taps)
+                taps_min_ordered = [Tap.taps_to_min_sorted_signal(crop_taps)]
+                taps_max_ordered = [Tap.taps_to_max_sorted_signal(crop_taps)]
+                taps_matrix = [Tap.taps_to_first_matrix_signal(crop_taps, 100, 30)]
 
-                plot_signal = taps_min_ordered
+                plot_signal = taps_matrix
 
-                plot_taps(plot_signal, signal)
+                plot_taps(plot_signal, signal, plot_all=True)
             except:
                 print("An exception occurred {}".format(signal.diagnosis + ' ' + signal.file[20:42]))
                 traceback.print_exc()

@@ -178,7 +178,7 @@ if __name__ == '__main__':
         allData = readAllDataAndAutoSplit(dataPath)
         
     elif splitMethod == 'file':
-        txtfile = 'allSplits.txt'  # stavi ovo kao parametar
+        txtfile = 'allSplits.txt'  # TO DO: stavi ovo kao parametar
         allData = readAllDataAndSplitFromTxt(dataPath, txtfile)
     else:
         raise('Invalid split method. Choose between "auto" and "file"')            

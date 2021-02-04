@@ -16,7 +16,9 @@ class SignalType:
     values_scaled = 'signal_values_scaled'
     spherical_scaled = 'signal_spherical_scaled'
     amplitude_scaled = 'signal_amplitude_scaled'
-    # all = 'signal_all'
+
+
+#    # all = 'signal_all'
 
 
 class TapType:
@@ -44,12 +46,13 @@ class ConcatenationType:
     last = 'concatenate_last'
     min = 'concatenate_min'
     max = 'concatenate_max'
+    first_matrix = 'concatenate_first_matrix'
 
 
 conversion_combinations = [
-    [SignalType.signed_amplitude, TapType.taps, FunctionType.none, ConcatenationType.first],
-    [SignalType.values, TapType.taps, FunctionType.none, ConcatenationType.first]
+    [SignalType.values, TapType.taps, FunctionType.none, ConcatenationType.first_matrix],
 ]
+
 conversion_type = 'create_simple'
 
 # conversion_type = 'create_full_list'
@@ -57,39 +60,39 @@ conversion_type = 'create_simple'
 
 # conversion_type = 'create_random_list'
 # conversion_type = 'add_random_list'
-number_of_conversions = 200
+number_of_conversions = 72
 
 # =============================================================================
 # CONFIGURATIONS
 # =============================================================================
 
 # configuration_type = 'random_attr'
-# configuration_type = 'random_one_attr'
-number_of_configurations = 50
-attribute_range_values = (('nConvLayers', 3, 3, 6),
-                          ('kernelSize', 11, 8, 20),
+configuration_type = 'random_one_attr'
+number_of_configurations = 16
+attribute_range_values = (('nConvLayers', 4, 3, 8),
+                          ('kernelSize', 10, 8, 32),
                           ('stride', 1, 1, 10),
                           ('constraint', 3, 3, 3),
-                          ('nInitialFilters', 32, 32, 128),
-                          ('batchSize', 16, 16, 50),
+                          ('nInitialFilters', 90, 70, 150),
+                          ('batchSize', 35, 20, 90),
                           ('nDenseUnits', 64, 64, 64),
-                          ('dropout_rate1', 0.5, 0.2, 0.6),
-                          ('dropout_rate2', 0.7, 0.3, 0.75))
+                          ('dropout_rate1', 0.5, 0.5, 0.5),
+                          ('dropout_rate2', 0.64, 0.5, 0.8))
 
-configuration_type = 'one_attr'
-attribute_default_values = (('nConvLayers', 3),
-                            ('kernelSize', 11),
+# configuration_type = 'one_attr'
+attribute_default_values = (('nConvLayers', 4),
+                            ('kernelSize', 10),
                             ('stride', 1),
                             ('constraint', 3),
-                            ('nInitialFilters', 32),
-                            ('batchSize', 16),
+                            ('nInitialFilters', 90),
+                            ('batchSize', 21),
                             ('nDenseUnits', 64),
                             ('dropout_rate1', 0.5),
-                            ('dropout_rate2', 0.7))
-one_attr_name = 'kernelSize'
-one_attr_start = 8
-one_attr_end = 15
-one_attr_step = 1
+                            ('dropout_rate2', 0.64))
+one_attr_name = 'batchSize'
+one_attr_start = 30
+one_attr_end = 60
+one_attr_step = 3
 
 # =============================================================================
 # MODEL TOPOLOGIES
@@ -118,7 +121,7 @@ epochs = 200
 # test_type = 'create_simple_tests'
 test_type = 'create_mixed_tests'
 
-number_of_tests = 2
+number_of_tests = 3
 
 # Split into train, test, val sets
 train_percent = 0.7
@@ -128,6 +131,12 @@ validation_percent = 0.1
 start_time = 0
 end_time = 10
 def_signal_val = 0
+
+samples = (end_time - start_time) * 200
+
+max_taps = 30
+max_tap_len = 100
+# samples = max_tap_len * max_taps
 
 # =============================================================================
 # MISCELLANEOUS

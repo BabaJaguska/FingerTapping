@@ -99,7 +99,7 @@ def get_amplitude_scaled(measurement):
     return result
 
 
-def get_spectrogram(measurement):  # TODO mozda podeliti spektrograme jer gornja i dolja polovina nose iste podatke?
+def get_spectrogram(measurement):  # TODO mozda podeliti spektrograme ako gornja i dolja polovina nose iste podatke
     result = [measurement.spectrogram_i, measurement.spectrogram_t]
     return result
 

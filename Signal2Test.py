@@ -40,7 +40,7 @@ def convert_measurement(measurement, start, end, conversions, def_val=Parameters
 
         concatenated_taps = get_concatenated_taps(function_taps, concatenation_type)
 
-        concatenated_taps = adjust_signals(measurement, concatenated_taps, start, end, def_val)
+        concatenated_taps = crop_signals(concatenated_taps, 0, Parameters.samples, def_val)
 
         result_taps.append(concatenated_taps)
 
@@ -142,6 +142,8 @@ def get_concatenated_taps(taps, concatenation_type=None):
         result = Tap.taps_to_min_sorted_signal(taps)
     elif concatenation_type == 'concatenate_max':
         result = Tap.taps_to_max_sorted_signal(taps)
+    elif concatenation_type == 'concatenate_first_matrix':
+        result = Tap.taps_to_first_matrix_signal(taps)
     return result
 
 
