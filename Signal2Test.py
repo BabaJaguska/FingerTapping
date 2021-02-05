@@ -124,6 +124,14 @@ def get_taps_function(taps, function_type=None):
         result = Extractor.get_taps_convolution_last(taps)
     elif function_type == 'convolution_auto':
         result = Extractor.get_taps_auto_convolution(taps)
+    elif function_type == 'convolution_single_avg_tap':
+        result = Extractor.get_taps_convolution_single_avg(taps)
+    elif function_type == 'convolution_single_first_tap':
+        result = Extractor.get_taps_convolution_single_first(taps)
+    elif function_type == 'convolution_single_last_tap':
+        result = Extractor.get_taps_convolution_single_last(taps)
+    elif function_type == 'convolution_single_auto':
+        result = Extractor.get_taps_single_auto_convolution(taps)
     elif function_type == 'rfft':
         result = Extractor.get_taps_rfft(taps)
 

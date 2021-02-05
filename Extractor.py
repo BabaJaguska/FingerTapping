@@ -268,38 +268,30 @@ def taps_reshape(data):
 
 def get_taps_convolution_avg(taps):
     if len(taps) == 0: return []
-    conv = taps_convolution_avg(taps)
-    result = Tap.signal_to_taps(conv, taps)
-    return result
-
-
-def taps_convolution_avg(taps):
     max_len = Tap.tap_max_len(taps)
     conv = Tap.avg_val_tap(taps, max_len)
-    signals = Tap.concatenate_taps(taps)
-    if len(conv.shape) > 1:
-        result = signal.convolve2d(signals, conv, 'same')
-    else:
-        result = np.convolve(signals, conv, 'same')
+    convolutions = taps_convolution(taps, conv)
+    result = Tap.signal_to_taps(convolutions, taps)
     return result
 
 
 def get_taps_convolution_first(taps):
     if len(taps) == 0: return []
-    conv = taps_convolution(taps, 0)
-    result = Tap.signal_to_taps(conv, taps)
+    conv = Tap.val_tap(taps, 0)
+    convolutions = taps_convolution(taps, conv)
+    result = Tap.signal_to_taps(convolutions, taps)
     return result
 
 
 def get_taps_convolution_last(taps):
     if len(taps) == 0: return []
-    conv = taps_convolution(taps, -1)
-    result = Tap.signal_to_taps(conv, taps)
+    conv = Tap.val_tap(taps, -1)
+    convolutions = taps_convolution(taps, conv)
+    result = Tap.signal_to_taps(convolutions, taps)
     return result
 
 
-def taps_convolution(taps, index):
-    conv = Tap.val_tap(taps, index)
+def taps_convolution(taps, conv):
     signals = Tap.concatenate_taps(taps)
     if len(conv.shape) > 1:
         result = signal.convolve2d(signals, conv, 'same')
@@ -322,6 +314,56 @@ def taps_auto_convolution(taps):
     else:
         result = np.convolve(signals, signals, 'same')
     return result
+
+
+def get_taps_convolution_single_avg(taps):
+    if len(taps) == 0: return []
+    max_len = Tap.tap_max_len(taps)
+    conv = Tap.avg_val_tap(taps, max_len)
+    result = taps_single_convolution(taps, conv)
+    return result
+
+
+def get_taps_convolution_single_first(taps):
+    if len(taps) == 0: return []
+    conv = Tap.val_tap(taps, -1)
+    result = taps_single_convolution(taps, conv)
+    return result
+
+
+def get_taps_convolution_single_last(taps):
+    if len(taps) == 0: return []
+    conv = Tap.val_tap(taps, -1)
+    result = taps_single_convolution(taps, conv)
+    return result
+
+
+def taps_single_convolution(taps, conv):
+    results = []
+    for tap in taps:
+        if len(conv.shape) > 1:
+            result = signal.convolve2d(tap, conv, 'same')
+        else:
+            result = np.convolve(tap, conv, 'same')
+        results.append(result)
+    return results
+
+
+def get_taps_single_auto_convolution(taps):
+    if len(taps) == 0: return []
+    result = taps_single_auto_convolution(taps)
+    return result
+
+
+def taps_single_auto_convolution(taps):
+    results = []
+    for tap in taps:
+        if len(tap.shape) > 1:
+            result = signal.convolve2d(tap, tap, 'same')
+        else:
+            result = np.convolve(tap, tap, 'same')
+        results.append(result)
+    return results
 
 
 def get_taps_rfft(taps):

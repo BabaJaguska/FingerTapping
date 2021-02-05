@@ -71,7 +71,7 @@ def main():
                 taps_max_ordered = [Tap.taps_to_max_sorted_signal(crop_taps)]
                 taps_matrix = [Tap.taps_to_first_matrix_signal(crop_taps, 100, 30)]
 
-                plot_signal = taps_matrix
+                plot_signal = taps
 
                 plot_taps(plot_signal, signal, plot_all=True)
             except:
