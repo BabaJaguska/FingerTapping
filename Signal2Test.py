@@ -152,12 +152,15 @@ def get_concatenated_taps(taps, concatenation_type=None):
         result = Tap.taps_to_max_sorted_signal(taps)
     elif concatenation_type == 'concatenate_first_matrix':
         result = Tap.taps_to_first_matrix_signal(taps)
+    elif concatenation_type == 'concatenate_3D':
+        result = Tap.concatenate_taps_3D(taps)
     return result
 
 
 def adjust_signals(measurement, signals, start, end, def_val=0):
-    start_index = int(start * measurement.sampling_rate)
-    end_index = int(end * measurement.sampling_rate)
+    
+    start_index = int(start * measurement.sampling_rate) 
+    end_index = int(end * measurement.sampling_rate) 
 
     crops = crop_signals(signals, start_index, end_index, def_val)
 
@@ -167,7 +170,8 @@ def adjust_signals(measurement, signals, start, end, def_val=0):
 def crop_signals(signals, start_index, end_index, def_val=0):
     result = []
     for signal in signals:
-        crops = signal[..., start_index:end_index]
+        
+        crops = signal[..., start_index:end_index] #<--- ODNOSI SE NA MAX DUZINU SIGNALA, NE NA KRAJ TAPKANJA
 
         l1 = crops.shape[len(crops.shape) - 1]
         s = end_index - start_index - l1
@@ -187,14 +191,17 @@ def crop_signals(signals, start_index, end_index, def_val=0):
 
 
 def reshape(x, y):
-    sizes_x = [len(x)]
-    for i in range(len(x[0].shape)):
-        sizes_x.append(x[0].shape[i])
-    sizes_x = tuple(sizes_x)
-    x = np.reshape(x, sizes_x)
+    # sizes_x = [len(x)]
+    # for i in range(len(x[0].shape)):
+    #     sizes_x.append(x[0].shape[i])
+    # sizes_x = tuple(sizes_x)
+
+    x = np.array(x)
+    # x = np.reshape(x, sizes_x)
     x = np.swapaxes(x, 1, -1)
-    sizes_y = (len(x), y[0].shape[0])
-    y = np.reshape(y, sizes_y)
+    # sizes_y = (len(x), y[0].shape[0])
+    # y = np.reshape(y, sizes_y)
+    y = np.array(y)
     print('Shape of X: ', x.shape)
     return x, y
 
@@ -221,7 +228,7 @@ def concatenate_combinations(result_taps):
 def crop_taps(measurement, taps, start, end, def_val):  # TODO ne koristi se
     result = []
     start_index = int(start * measurement.sampling_rate)
-    end_index = int(end * measurement.sampling_rate)
+    end_index = int(end * measurement.sampling_rate) 
     start = 0
     for i in range(len(taps)):
         tap = taps[i]

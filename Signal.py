@@ -60,6 +60,24 @@ class Signal:
         self.date = date  # date of recording
         self.time_of_measurement = time_of_measurement  # what time that date
         self.length = len(gyro1x)
+        
+        
+        # import code
+        # code.interact(local=locals())
+        
+        start_sample = int(self.ttap_start * self.sampling_rate)
+        stop_sample = int(self.ttap_stop * self.sampling_rate)
+    
+        
+        self.gyro1x = self.gyro1x[start_sample:stop_sample]
+        self.gyro1y = self.gyro1y[start_sample:stop_sample]
+        self.gyro1z = self.gyro1z[start_sample:stop_sample]
+        self.gyro2x = self.gyro2x[start_sample:stop_sample]
+        self.gyro2y = self.gyro2y[start_sample:stop_sample]
+        self.gyro2z = self.gyro2z[start_sample:stop_sample]
+        self.fsr = self.fsr[start_sample:stop_sample]
+        self.time = self.time[0:stop_sample - start_sample]
+    
 
     def plot_signal(self, tmin, tmax):
         # gyro1
@@ -256,7 +274,7 @@ def load_minja(root, directory, file):
         time_of_measurement = file[27:35]
     ThumbWVD = []
     IndexWVD = []
-
+    
     temp = Signal(file, fsr, gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, ThumbWVD, IndexWVD, tap_task, time,
                   time_tap, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
 

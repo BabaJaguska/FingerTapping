@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.model_selection import train_test_split
 import Diagnosis
 import Parameters
 import Signal2Test
@@ -65,7 +65,12 @@ def create_simple_test(measurements, test_type, train_percent, test_percent):
 
 def extract_test_and_concatenate(measurements, diagnosis, train_percent, test_percent, train_data, test_data,
                                  validation_data):
+    
+       
     trds, teds, vads = extract_test(measurements, diagnosis, train_percent, test_percent)
+    
+    
+    
     for trd in trds:
         train_data.append(trd)
     for ted in teds:
@@ -76,25 +81,37 @@ def extract_test_and_concatenate(measurements, diagnosis, train_percent, test_pe
 
 
 def extract_test(measurements, diagnosis, train_percent, test_percent):
+    
+    # promenila da se deli po id, ne po candidate signals
+    # staviti seed
+    
+    
+    
     candidates = [sig for i, sig in enumerate(measurements) if sig.diagnosis == diagnosis]
     validation_percent = 1 - train_percent - test_percent
     train_data, test_data, validation_data = [], [], []
     # Split into train, test, val sets
+    
+    all_ids_in_diagnosis = np.unique([candidate.initials for candidate in candidates])
+    
 
-    train_num = int(train_percent * len(candidates))
-    test_num = int(test_percent * len(candidates))
-    validation_num = int(validation_percent * len(candidates))
-
-    while len(validation_data) <= validation_num:
-        index = np.random.randint(0, len(candidates))
-        initials = candidates[index].initials
+    train_num = int(train_percent * len(all_ids_in_diagnosis))
+    test_num = int(test_percent * len(all_ids_in_diagnosis))
+    validation_num = int(validation_percent * len(all_ids_in_diagnosis))
+    
+    np.random.seed(0); val_indices = np.random.choice(len(all_ids_in_diagnosis), validation_num)
+    
+    for index in val_indices:
+        initials = all_ids_in_diagnosis[index]
         measurements = [candidate for i, candidate in enumerate(candidates) if candidate.initials == initials]
         for measurement in measurements:
             validation_data.append(measurement)
             candidates.remove(measurement)
+            
+    all_ids_in_diagnosis = np.unique([candidate.initials for candidate in candidates])
+    np.random.seed(0); test_indices = np.random.choice(len(all_ids_in_diagnosis), test_num)
 
-    while len(test_data) <= test_num:
-        index = np.random.randint(0, len(candidates))
+    for index in test_indices:
         initials = candidates[index].initials
         measurements = [candidate for i, candidate in enumerate(candidates) if candidate.initials == initials]
         for measurement in measurements:
@@ -103,6 +120,7 @@ def extract_test(measurements, diagnosis, train_percent, test_percent):
 
     for measurement in candidates:
         train_data.append(measurement)
+        
 
     return train_data, test_data, validation_data
 

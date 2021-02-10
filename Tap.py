@@ -335,3 +335,23 @@ def crop_val_taps(taps, min_val, max_val):  # TODO da li radi?
                 new_tap[i] = tap[i]
         result.append(new_tap)
     return result
+
+def concatenate_taps_3D(taps):
+    '''
+    Concatenates taps in the third dimension
+    Suitable for time distributed models
+    
+    Parameters
+    ----------
+    taps : list of ndarrays
+        a list of taps taken from one signal. Each element contains n_channels x tap_length
+
+    Returns
+    -------
+    result: ndarray
+        Taps reshaped into ndarray n_taps x n_channels x tap_length
+    
+    '''
+    result = np.array(taps)
+
+    return result

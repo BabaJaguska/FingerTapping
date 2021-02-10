@@ -17,6 +17,9 @@ def multiple_evaluations(tests, models, list_of_conversions, path=Parameters.def
                 print(str(model))
                 model_results = []
                 for test in tests:
+                    # import code
+                    # code.interact(local=locals())
+                    
                     converted_test = TestGenerator.convert_test(test, conversions)
                     res = single_evaluation(converted_test, model, conversions, path)
                     model_results.append(res)
@@ -24,7 +27,42 @@ def multiple_evaluations(tests, models, list_of_conversions, path=Parameters.def
                 res = combine_model_results(model_results)
                 results.append(res)
 
-                res.save(path + result_file)
+                #res.save(path + result_file)
+                
+                import csv 
+                import os
+                hasHeader = os.path.isfile('./results/results.csv')
+                with open('./results/results.csv', 'a', newline = '') as csvfile:
+                    results_writer = csv.writer(csvfile, delimiter = ',')
+                    
+                    if not hasHeader:
+                        results_writer.writerow(['Model', 'Conversions', 'test_type',
+                                                    'avg_train_accuracy',
+                                                    'avg_val_accuracy',
+                                                    'avg_test_accuracy',
+                                                    'nConvLayers',
+                                                    'kernelSize',
+                                                    'stride',
+                                                    'constraint',
+                                                    'nInitialFilters',
+                                                    'batchSize',
+                                                    'nDenseUnits',
+                                                    'dropout_rate1',
+                                                    'dropout_rate_2'])
+                    
+                    
+                    results_writer.writerow([res.model, res.conversions, res.test_type, 
+                                             res.avg_train_accuracy, res.avg_validation_accuracy, res.avg_test_accuracy,
+                                         res.configuration['nConvLayers'],
+                                         res.configuration['kernelSize'],
+                                         res.configuration['stride'],
+                                         res.configuration['constraint'],
+                                         res.configuration['nInitialFilters'],
+                                         res.configuration['batchSize'],
+                                         res.configuration['nDenseUnits'],
+                                         res.configuration['dropout_rate1'],
+                                         res.configuration['dropout_rate2']])
+                
                 show_evaluation_results_info([res], plot=1)
 
             except:

@@ -52,6 +52,8 @@ class Result:
                 accuracy, clean(precision, decimal_places - 2), clean(recall, decimal_places - 2),
                 clean(f1, decimal_places - 2),
                 self.confuse_matrix)
+            
+
         except:
             res = ''
         return res

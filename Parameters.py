@@ -49,10 +49,11 @@ class ConcatenationType:
     min = 'concatenate_min'
     max = 'concatenate_max'
     first_matrix = 'concatenate_first_matrix'
+    d3 = 'concatenate_3D'
 
 
 conversion_combinations = [
-    [SignalType.values, TapType.taps, FunctionType.none, ConcatenationType.first]
+    [SignalType.values, TapType.taps, FunctionType.none, ConcatenationType.none]
 ]
 
 conversion_type = 'create_simple'
@@ -62,7 +63,7 @@ conversion_type = 'create_simple'
 
 # conversion_type = 'create_random_list'
 # conversion_type = 'add_random_list'
-number_of_conversions = 72
+number_of_conversions = 1
 
 # =============================================================================
 # CONFIGURATIONS
@@ -70,7 +71,7 @@ number_of_conversions = 72
 
 # configuration_type = 'random_attr'
 configuration_type = 'random_one_attr'
-number_of_configurations = 16
+number_of_configurations = 1
 attribute_range_values = (('nConvLayers', 4, 3, 8),
                           ('kernelSize', 27, 8, 32),
                           ('stride', 1, 1, 10),
@@ -113,7 +114,7 @@ model_topology_type = 'CNNMLModel'
 # EVALUATION
 # =============================================================================
 
-number_of_tries_per_configurations = 5
+number_of_tries_per_configurations = 1
 epochs = 200
 
 # =============================================================================
@@ -131,7 +132,7 @@ test_percent = 0.2
 validation_percent = 0.1
 
 start_time = 0
-end_time = 10
+end_time = 10 # KOLIKO MAX DA BUDE SIGNAL, NEVEZANO ZA TO KAD STAJU TAPOVI
 def_signal_val = 0
 
 samples = (end_time - start_time) * 200
@@ -145,7 +146,13 @@ max_tap_len = 100
 # =============================================================================
 
 default_results_path = './results/'
+
+import os
+if not os.path.isdir('./results'):
+    os.mkdir('./results')    
+
 default_results_file = 'result.txt'
+default_results_csv = 'results.csv'
 splits_file = './allSplits.txt'
 
 # default_root_path = './data/raw data/'
