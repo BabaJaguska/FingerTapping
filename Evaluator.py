@@ -16,10 +16,7 @@ def multiple_evaluations(tests, models, list_of_conversions, path=Parameters.def
             try:
                 print(str(model))
                 model_results = []
-                for test in tests:
-                    # import code
-                    # code.interact(local=locals())
-                    
+                for test in tests:                  
                     converted_test = TestGenerator.convert_test(test, conversions)
                     res = single_evaluation(converted_test, model, conversions, path)
                     model_results.append(res)

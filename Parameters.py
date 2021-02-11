@@ -23,8 +23,8 @@ class TapType:
     none = 'taps_none'
     taps = 'taps_taps'
     normalised_len = 'taps_normalised_len'
-    normalised_max_len = 'taps_normalised_max_len'
-    max_len_normalised = 'taps_max_len_normalised'
+    normalised_max_len = 'taps_normalised_max_len' # svi u merenju tapovi su duzine najduzeg u tom merenju?
+    max_len_normalised = 'taps_max_len_normalised' # svi tapovi duzine 100???
     double_stretch = 'taps_double_stretch'
     no_drift_integral = 'taps_no_drift_integral'
 
@@ -53,7 +53,7 @@ class ConcatenationType:
 
 
 conversion_combinations = [
-    [SignalType.values, TapType.taps, FunctionType.none, ConcatenationType.none]
+    [SignalType.values, TapType.normalised_len, FunctionType.none, ConcatenationType.d3]
 ]
 
 conversion_type = 'create_simple'
@@ -101,7 +101,7 @@ one_attr_step = 3
 # MODEL TOPOLOGIES
 # =============================================================================
 
-model_topology_type = 'CNNMLModel'
+model_topology_type = 'CNNLSTMModel'
 # model_topology_type = 'CNNSequentialMLModel'
 # model_topology_type = 'CNNSequential2DMLModel'
 # model_topology_type = 'CNNRandomMLModel'
@@ -138,7 +138,7 @@ def_signal_val = 0
 samples = (end_time - start_time) * 200
 
 max_taps = 30
-max_tap_len = 100
+max_tap_len = 600
 # samples = max_tap_len * max_taps
 
 # =============================================================================

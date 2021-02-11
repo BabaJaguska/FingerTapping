@@ -13,11 +13,18 @@ def convert_measurements(measurements, conversions, start, end):
     diagnoses = []
     for measurement in measurements:
         _signals, _diagnoses = convert_measurement(measurement, start, end, conversions)
-        if len(_signals) > 0:
-            signals.append(_signals)
-            diagnoses.append(_diagnoses)
+        
+        if isinstance(_signals, list):
+            if not _signals:
+                continue
+        else:
+            if _signals.size == 0:
+                continue
+            
+        signals.append(_signals)
+        diagnoses.append(_diagnoses)
 
-    signals, diagnoses = reshape(signals, diagnoses)
+    signals, diagnoses = reshape(signals, diagnoses) # <----OVDE SI STALA: Razliciti brojevi tapova! 
 
     return signals, diagnoses
 
@@ -39,12 +46,19 @@ def convert_measurement(measurement, start, end, conversions, def_val=Parameters
         function_taps = get_taps_function(taps, function_type)
 
         concatenated_taps = get_concatenated_taps(function_taps, concatenation_type)
-
-        concatenated_taps = crop_signals(concatenated_taps, 0, Parameters.samples, def_val)
+        
+        if concatenation_type == 'concatenate_3D':
+            pass        
+        else:
+            concatenated_taps = crop_signals(concatenated_taps, 0, Parameters.samples, def_val)
 
         result_taps.append(concatenated_taps)
 
-    result_signals = concatenate_combinations(result_taps)
+    
+    if concatenation_type == 'concatenate_3D':
+        result_signals = np.array(result_taps)
+    else:    
+        result_signals = concatenate_combinations(result_taps)
 
     diagnosis = Diagnosis.encode_diagnosis(measurement.diagnosis)
 
@@ -171,7 +185,7 @@ def crop_signals(signals, start_index, end_index, def_val=0):
     result = []
     for signal in signals:
         
-        crops = signal[..., start_index:end_index] #<--- ODNOSI SE NA MAX DUZINU SIGNALA, NE NA KRAJ TAPKANJA
+        crops = signal[..., start_index:end_index] #<--- ODNOSI SE NA ZELJENU DUZINU SIGNALA, NE NA KRAJ TAPKANJA
 
         l1 = crops.shape[len(crops.shape) - 1]
         s = end_index - start_index - l1
@@ -198,7 +212,7 @@ def reshape(x, y):
 
     x = np.array(x)
     # x = np.reshape(x, sizes_x)
-    x = np.swapaxes(x, 1, -1)
+    x = np.swapaxes(x, -2, -1)
     # sizes_y = (len(x), y[0].shape[0])
     # y = np.reshape(y, sizes_y)
     y = np.array(y)

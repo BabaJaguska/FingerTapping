@@ -83,9 +83,7 @@ def extract_test_and_concatenate(measurements, diagnosis, train_percent, test_pe
 def extract_test(measurements, diagnosis, train_percent, test_percent):
     
     # promenila da se deli po id, ne po candidate signals
-    # staviti seed
-    
-    
+    # stavila seed
     
     candidates = [sig for i, sig in enumerate(measurements) if sig.diagnosis == diagnosis]
     validation_percent = 1 - train_percent - test_percent

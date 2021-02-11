@@ -336,7 +336,7 @@ def crop_val_taps(taps, min_val, max_val):  # TODO da li radi?
         result.append(new_tap)
     return result
 
-def concatenate_taps_3D(taps):
+def concatenate_taps_3D(taps, max_num_taps = Parameters.max_taps):
     '''
     Concatenates taps in the third dimension
     Suitable for time distributed models
@@ -349,9 +349,19 @@ def concatenate_taps_3D(taps):
     Returns
     -------
     result: ndarray
-        Taps reshaped into ndarray n_taps x n_channels x tap_length
+        Taps reshaped into ndarray n_taps x tap_length x n_channels???
     
     '''
-    result = np.array(taps)
+
+    if len(taps) == 0:
+        return []
+    
+    result = np.array(taps)   
+    if result.shape[0] >= max_num_taps:
+        result = result[0 : max_num_taps, : , :]
+    else:
+        temp = np.zeros([max_num_taps - result.shape[0], result.shape[1], result.shape[2]])
+        result = np.concatenate([result, temp])
+    #result = np.swapaxes(result, 1,-1)
 
     return result
