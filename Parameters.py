@@ -101,13 +101,13 @@ one_attr_step = 3
 # MODEL TOPOLOGIES
 # =============================================================================
 
-model_topology_type = 'CNNLSTMModel'
+
 # model_topology_type = 'CNNSequentialMLModel'
 # model_topology_type = 'CNNSequential2DMLModel'
 # model_topology_type = 'CNNRandomMLModel'
 # model_topology_type = 'LSTMMLModel'
 # model_topology_type = 'MultiHeadedMLModel'
-# model_topology_type = 'CNNLSTMMLModel'
+model_topology_type = 'CNNLSTMMLModel'
 
 
 # =============================================================================

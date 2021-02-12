@@ -6,12 +6,12 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from keras.constraints import max_norm
 from keras.layers import Activation, BatchNormalization, GlobalAveragePooling1D, TimeDistributed, Conv2D, MaxPool2D
 from keras.layers import Input, Conv1D, Flatten, MaxPooling1D, Reshape, UpSampling1D
-from keras.layers import LSTM, Dense, Dropout
+from keras.layers import LSTM, Dense, Dropout, ReLU
 from keras.layers.merge import concatenate
 from keras.models import Model, load_model
 from keras.models import Sequential
 from tensorflow import keras
-from tensorflow.python.keras.models import Sequential
+#from tensorflow.python.keras.models import Sequential
 
 
 # =============================================================================
@@ -299,15 +299,18 @@ def CNNLSTMModel(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, strid
     n_steps, n_length = 4, 32
     # define model
     model = Sequential()
-    model.add(
-        TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu'), input_shape=(None, n_length, n_features)))
-    model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3, activation='relu')))
+    model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3),
+                        input_shape=train_data_x[0].shape))
+    model.add(TimeDistributed(ReLU()))
+    model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3)))
+    model.add(TimeDistributed(ReLU()))
     model.add(TimeDistributed(Dropout(0.5)))
     model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
     model.add(TimeDistributed(Flatten()))
     model.add(LSTM(100))
     model.add(Dropout(0.5))
-    model.add(Dense(100, activation='relu'))
+    model.add(Dense(100))
+    model.add(ReLU())
     model.add(Dense(n_outputs, activation='softmax'))
 
     return model

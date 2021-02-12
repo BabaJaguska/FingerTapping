@@ -216,6 +216,10 @@ def reshape(x, y):
     # sizes_y = (len(x), y[0].shape[0])
     # y = np.reshape(y, sizes_y)
     y = np.array(y)
+    
+    # STAVI OVO DA BUDE SAMO AKO RADIS SA CNNLSTM
+    x = np.squeeze(x, axis = 1)
+    
     print('Shape of X: ', x.shape)
     return x, y
 
