@@ -93,7 +93,7 @@ def extract_test(measurements, diagnosis, train_percent, test_percent):
     all_ids_in_diagnosis = np.unique([candidate.initials for candidate in candidates])
     
 
-    train_num = int(train_percent * len(all_ids_in_diagnosis))
+    #train_num = int(train_percent * len(all_ids_in_diagnosis))
     test_num = int(test_percent * len(all_ids_in_diagnosis))
     validation_num = int(validation_percent * len(all_ids_in_diagnosis))
     

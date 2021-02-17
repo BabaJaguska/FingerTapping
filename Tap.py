@@ -65,10 +65,10 @@ def stretch(signal, new_len):
 def crop_signal_time_taps(taps, new_len=Parameters.stretch_len, default_value=0):
     result = []
     for tap in taps:
-        if len(tap) >= new_len:
-            new_tap = np.resize(tap, (new_len,))
+        if tap.shape[1] >= new_len:
+            new_tap = np.resize(tap, (tap.shape[0],new_len))
         else:
-            new_tap = np.lib.pad(tap, (0, new_len - len(tap)), 'constant', constant_values=default_value)
+            new_tap = np.lib.pad(tap,((0,0),(0, new_len - tap.shape[1])), 'constant', constant_values=default_value)
         result.append(new_tap)
     return result
 

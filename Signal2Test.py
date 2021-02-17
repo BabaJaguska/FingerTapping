@@ -24,7 +24,7 @@ def convert_measurements(measurements, conversions, start, end):
         signals.append(_signals)
         diagnoses.append(_diagnoses)
 
-    signals, diagnoses = reshape(signals, diagnoses) # <----OVDE SI STALA: Razliciti brojevi tapova! 
+    signals, diagnoses = reshape(signals, diagnoses) 
 
     return signals, diagnoses
 
@@ -122,6 +122,8 @@ def get_taps(measurement, signals, tap_type=None):
         result = Extractor.get_taps_double_stretch(measurement, signals)
     elif tap_type == 'taps_no_drift_integral':
         result = Extractor.get_taps_no_drift_integral(measurement, signals)
+    elif tap_type == 'taps_padded_to_fixed_len':
+        result = Extractor.get_taps_padded_to_fixed_len(measurement, signals)
 
     return result
 

@@ -65,8 +65,8 @@ class Signal:
         # import code
         # code.interact(local=locals())
         
-        start_sample = int(self.ttap_start * self.sampling_rate)
-        stop_sample = int(self.ttap_stop * self.sampling_rate)
+        start_sample = int((self.ttap_start + 0.3) * self.sampling_rate)
+        stop_sample = int((self.ttap_stop - 0.3) * self.sampling_rate)
     
         
         self.gyro1x = self.gyro1x[start_sample:stop_sample]

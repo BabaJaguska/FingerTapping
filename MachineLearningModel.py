@@ -292,24 +292,38 @@ def MultiHeadedModel1(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, 
 # =============================================================================
 
 def CNNLSTMModel(train_data_x, train_data_y, nConvLayers=3, kernel_size=3, stride=1, kernel_constraint=3,
-                 nUnits=64, initialFilters=32, dropout1=0.6, dropout2=0.7):
+                 nUnits=32, initialFilters=16, dropout1=0.6, dropout2=0.7, cell_size = 16):
     # TODO ovo ne radi
     n_timesteps, n_features, n_outputs = train_data_x.shape[1], train_data_x.shape[2], train_data_y.shape[1]
     # reshape data into time steps of sub-sequences
     n_steps, n_length = 4, 32
     # define model
     model = Sequential()
-    model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3),
+    model.add(TimeDistributed(Conv1D(filters = initialFilters,
+                                     kernel_size = kernel_size,
+                                     padding = 'same'),
                         input_shape=train_data_x[0].shape))
-    model.add(TimeDistributed(ReLU()))
-    model.add(TimeDistributed(Conv1D(filters=64, kernel_size=3)))
-    model.add(TimeDistributed(ReLU()))
-    model.add(TimeDistributed(Dropout(0.5)))
     model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
+    model.add(TimeDistributed(ReLU()))
+    
+    model.add(TimeDistributed(Conv1D(filters = initialFilters * 2,
+                                     kernel_size = kernel_size,
+                                     padding = 'same')))
+    model.add(TimeDistributed(ReLU()))
+    model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
+    
+    model.add(TimeDistributed(Conv1D(filters = initialFilters * 4,
+                                     kernel_size = kernel_size,
+                                     padding = 'same')))
+    model.add(TimeDistributed(ReLU()))
+    model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
+    
+    model.add(TimeDistributed(Dropout(dropout1)))
+    
     model.add(TimeDistributed(Flatten()))
-    model.add(LSTM(100))
-    model.add(Dropout(0.5))
-    model.add(Dense(100))
+    model.add(LSTM(cell_size))
+    model.add(Dropout(dropout2))
+    model.add(Dense(nUnits))
     model.add(ReLU())
     model.add(Dense(n_outputs, activation='softmax'))
 

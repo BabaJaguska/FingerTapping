@@ -194,6 +194,11 @@ def get_signal_taps_normalised_max_len(measurement, signal):
     crop_taps = Tap.crop_signal_time_taps(taps, max_len)
     return crop_taps
 
+def get_taps_padded_to_fixed_len(measurement, signal):
+    taps = Tap.get_signal_taps(measurement, signal)
+    crop_taps = Tap.crop_signal_time_taps(taps)
+    return crop_taps
+
 
 def get_taps_max_len_normalised(measurement, signals):
     result = get_taps_for_function(measurement, signals, get_signal_taps_max_len_normalised)
