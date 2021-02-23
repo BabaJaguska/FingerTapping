@@ -53,7 +53,7 @@ class ConcatenationType:
 
 
 conversion_combinations = [
-    [SignalType.values, TapType.set_len, FunctionType.single_auto, ConcatenationType.none]
+    [SignalType.values, TapType.set_len, FunctionType.single_auto, ConcatenationType.d3]
 ]
 
 conversion_type = 'create_simple'  # koristi conversion_combinations za obradu
@@ -63,7 +63,7 @@ conversion_type = 'create_simple'  # koristi conversion_combinations za obradu
 
 # conversion_type = 'create_random_list' # za obradu pravi number_of_conversions kombinacija gde se slucajno uzima SignalType, TapType, FunctionType, ConcatenationType, oni koji ne treba da se koriste zakomentarisati
 # conversion_type = 'add_random_list' # u listu conversion_combinations uz date redove dodaje po jedan koji se slucajno uzima svaki SignalType, TapType, FunctionType, ConcatenationType, oni koji ne treba da se koriste zakomentarisati, pravi number_of_conversions kombinacija
-number_of_conversions = 64 # koliko kombinacija podataka da se generise. koristi ga 'create_random_list' i 'add_random_list'
+number_of_conversions = 1 # koliko kombinacija podataka da se generise. koristi ga 'create_random_list' i 'add_random_list'
 
 # =============================================================================
 # CONFIGURATIONS
@@ -71,27 +71,27 @@ number_of_conversions = 64 # koliko kombinacija podataka da se generise. koristi
 
 # configuration_type = 'random_attr' # formira number_of_configurations+1 konfiguracija ML algoritama zadatih attribute_range_values skupom. varira sve vrednosti izmedju pretposlednje i poslednje kolone. Uvek vraca i podrazumevane vrednosti, drugu kolonu
 configuration_type = 'random_one_attr'  # formira number_of_configurations+1 konfiguracija ML algoritama zadatih attribute_range_values skupom. u jednoj konfiguraciji varira jednu vrednosti izmedju pretposlednje i poslednje kolone. Uvek vraca i podrazumevane vrednosti, drugu kolonu
-number_of_configurations = 24
-attribute_range_values = (('nConvLayers', 6, 2, 6),
-                          ('kernelSize', 31, 8, 60),
+number_of_configurations = 1
+attribute_range_values = (('nConvLayers', 3, 2, 6),
+                          ('kernelSize', 7, 8, 60),
                           ('stride', 1, 1, 1),
                           ('constraint', 3, 3, 3),
-                          ('nInitialFilters', 36, 32, 128),
-                          ('batchSize', 24, 20, 80),
-                          ('nDenseUnits', 80, 64, 80),
-                          ('dropout_rate1', 0.42, 0.4, 0.6),
-                          ('dropout_rate2', 0.73, 0.3, 0.8))
+                          ('nInitialFilters', 16, 32, 128),
+                          ('batchSize', 32, 20, 80),
+                          ('nDenseUnits', 32, 64, 80),
+                          ('dropout_rate1', 0.45, 0.4, 0.6),
+                          ('dropout_rate2', 0.45, 0.3, 0.8))
 
 # configuration_type = 'one_attr' # formira vise konfiguracije ML aloritama variranjem jednog, one_attr_name, atributa u intervalu od one_attr_start do one_attr_end sa korakom one_attr_step, ostali atributi dobijaju vrednosti is attribute_default_values
-attribute_default_values = (('nConvLayers', 4),
-                            ('kernelSize', 10),
+attribute_default_values = (('nConvLayers', 3),
+                            ('kernelSize', 7),
                             ('stride', 1),
                             ('constraint', 3),
-                            ('nInitialFilters', 90),
-                            ('batchSize', 35),
-                            ('nDenseUnits', 64),
+                            ('nInitialFilters', 16),
+                            ('batchSize', 32),
+                            ('nDenseUnits', 32),
                             ('dropout_rate1', 0.5),
-                            ('dropout_rate2', 0.64))
+                            ('dropout_rate2', 0.6))
 one_attr_name = 'batchSize'
 one_attr_start = 30
 one_attr_end = 60
@@ -101,20 +101,20 @@ one_attr_step = 3
 # MODEL TOPOLOGIES
 # =============================================================================
 
-model_topology_type = 'CNNMLModel'
+# model_topology_type = 'CNNMLModel'
 # model_topology_type = 'CNNSequentialMLModel'
 # model_topology_type = 'CNNSequential2DMLModel'
 # model_topology_type = 'CNNRandomMLModel'
 # model_topology_type = 'LSTMMLModel'
 # model_topology_type = 'MultiHeadedMLModel'
-# model_topology_type = 'CNNLSTMMLModel'
+model_topology_type = 'CNNLSTMMLModel'
 
 
 # =============================================================================
 # EVALUATION
 # =============================================================================
 
-number_of_tries_per_configurations = 3  # za svaku konfiguraciju koliko puta da ponovi izracunavanje zbog random vrednsti na pocetku
+number_of_tries_per_configurations = 1  # za svaku konfiguraciju koliko puta da ponovi izracunavanje zbog random vrednsti na pocetku
 epochs = 200  # koliko epoha za izracunavanje
 
 # =============================================================================
@@ -124,7 +124,7 @@ epochs = 200  # koliko epoha za izracunavanje
 test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj grupi (test, traim, validation)
 # test_type = 'create_mixed_tests' # jedan pacijent se moze naci u vise grupa (test, traim, validation)
 
-number_of_tests = 15  # koliko razlicitih odabiranja pacijenata da se koristi
+number_of_tests = 1  # koliko razlicitih odabiranja pacijenata da se koristi
 
 # Split into train, test, val sets
 train_percent = 0.7  # procenat za treniranje
@@ -137,11 +137,11 @@ def_signal_val = 0  # vrednost za dopunu
 
 samples = (end_time - start_time) * 200  # koliko ima odabiraka u signalu
 
-max_taps = 30  # koliko tapova se posmatra, samo za first_matrix
+max_taps = 20  # koliko tapova se posmatra, samo za first_matrix
 max_tap_len = 100  # kolika je maksimalna duzina tapa. samo za set_len i first_matrix
 # samples = max_tap_len * max_taps # koliko ima odabiraka u signalu
 
-stretch_len = 100  # na koliko odbiraka da isteglji signal
+stretch_len = 300  # na koliko odbiraka da isteglji signal
 
 # =============================================================================
 # MISCELLANEOUS
@@ -151,7 +151,7 @@ default_results_path = './results/'  # folder sa rezultatima
 default_results_file = 'result.txt'  # fajla sa tekstualnim rezultatima
 default_results_csv = 'results.csv'  # fajl sa csv rezultatima
 splits_file = './allSplits.txt'  # fajl sa odredjenim granicama tapova
-result_in_csv = False
+result_in_csv = True
 
 # default_root_path = './data/raw data/' # folder sa podacima koji sadrze i spektrogram
 # data_packing_type = 'Zaki' # da li se ucitava spektrogram i nema informacije o koricenoj ruci

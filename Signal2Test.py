@@ -213,6 +213,8 @@ def reshape(x, y):
     sizes_x = tuple(sizes_x)
     x = np.reshape(x, sizes_x)
     x = np.swapaxes(x, -2, -1)
+    if len(x.shape) > 3:
+        x = np.squeeze(x, axis = 1) # pazi ovo da li remeti non-3D pakovanje?
     sizes_y = (len(x), y[0].shape[0])
     y = np.reshape(y, sizes_y)
     print('Shape of X: ', x.shape)

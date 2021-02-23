@@ -94,7 +94,7 @@ def single_evaluation(test, model, conversions, path,
                         avg_train_accuracy=np.mean(train_accuracies),
                         avg_test_accuracy=np.mean(test_accuracies),
                         confuse_matrix=cms)
-    print_memory_usage()
+    #print_memory_usage()
     return res
 
 
