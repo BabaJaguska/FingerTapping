@@ -50,6 +50,10 @@ def show_class_distribution(diagnoses, test_type, plot=1):
     return
 
 
+def equals(diag1, diag2):
+    return diag1 == diag2
+
+
 def get_diagnosis_names():
     d = ['CTRL', 'MSA', 'PD', 'PSP']
     return d

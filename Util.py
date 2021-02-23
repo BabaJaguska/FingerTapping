@@ -32,6 +32,14 @@ def calc_no_drift_integral(data):
     return result
 
 
+def calc_diff(data):
+    result = np.zeros(data.shape)
+    num = data.shape[0]
+    for i in range(num - 1):
+        result[i + 1] = data[i + 1] - data[i]
+    return result
+
+
 def concatenate_lists(list1, list2):
     for element in list2:
         list1.append(element)

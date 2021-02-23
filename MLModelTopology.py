@@ -32,6 +32,10 @@ class MLModelTopology:
     def evaluate(self, test_data_x, test_data_y):
         pass
 
+    def clear(self):
+        self.model = None
+        return
+
     def get_name(self):
         return self.model_name
 

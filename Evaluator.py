@@ -6,17 +6,19 @@ import numpy as np
 import Parameters
 import Result
 import TestGenerator
+from pympler import summary, muppy
+import sys
 
 
 def multiple_evaluations(tests, models, list_of_conversions, path=Parameters.default_results_path,
-                         result_file=Parameters.default_results_file):
+                         result_file=Parameters.default_results_file, result_csv=Parameters.default_results_csv):
     results = []
     for conversions in list_of_conversions:
         for model in models:
             try:
                 print(str(model))
                 model_results = []
-                for test in tests:                  
+                for test in tests:
                     converted_test = TestGenerator.convert_test(test, conversions)
                     res = single_evaluation(converted_test, model, conversions, path)
                     model_results.append(res)
@@ -24,49 +26,22 @@ def multiple_evaluations(tests, models, list_of_conversions, path=Parameters.def
                 res = combine_model_results(model_results)
                 results.append(res)
 
-                #res.save(path + result_file)
-                
-                import csv 
-                import os
-                hasHeader = os.path.isfile('./results/results.csv')
-                with open('./results/results.csv', 'a', newline = '') as csvfile:
-                    results_writer = csv.writer(csvfile, delimiter = ',')
-                    
-                    if not hasHeader:
-                        results_writer.writerow(['Model', 'Conversions', 'test_type',
-                                                    'avg_train_accuracy',
-                                                    'avg_val_accuracy',
-                                                    'avg_test_accuracy',
-                                                    'nConvLayers',
-                                                    'kernelSize',
-                                                    'stride',
-                                                    'constraint',
-                                                    'nInitialFilters',
-                                                    'batchSize',
-                                                    'nDenseUnits',
-                                                    'dropout_rate1',
-                                                    'dropout_rate_2'])
-                    
-                    
-                    results_writer.writerow([res.model, res.conversions, res.test_type, 
-                                             res.avg_train_accuracy, res.avg_validation_accuracy, res.avg_test_accuracy,
-                                         res.configuration['nConvLayers'],
-                                         res.configuration['kernelSize'],
-                                         res.configuration['stride'],
-                                         res.configuration['constraint'],
-                                         res.configuration['nInitialFilters'],
-                                         res.configuration['batchSize'],
-                                         res.configuration['nDenseUnits'],
-                                         res.configuration['dropout_rate1'],
-                                         res.configuration['dropout_rate2']])
-                
-                show_evaluation_results_info([res], plot=1)
+                save(res, path, result_csv, result_file)
+
+                show_evaluation_results_info([res], plot=Parameters.show_all)
 
             except:
                 print("An exception occurred {}".format(str(model)), sys.exc_info())
                 traceback.print_exc()
 
     return results
+
+
+def save(res, path, result_csv, result_file, result_in_csv=Parameters.result_in_csv):
+    if result_in_csv:
+        res.save_csv(path + result_csv)
+    else:
+        res.save(path + result_file)
 
 
 def single_evaluation(test, model, conversions, path,
@@ -91,7 +66,9 @@ def single_evaluation(test, model, conversions, path,
 
         history, train_accuracy, validation_accuracy = model.train(train_data[0], train_data[1], validation_data[0],
                                                                    validation_data[1], epochs)
-        histories.append(history)
+
+        # histories.append(history) # TODO izbaceno zbog stednje memorije. Ovo je 10MB po iteraciji
+
         train_accuracies.append(train_accuracy)
         validation_accuracies.append(validation_accuracy)
 
@@ -102,6 +79,8 @@ def single_evaluation(test, model, conversions, path,
         test_accuracies.append(test_accuracy)
 
         Result.show_confuse_matrix(confuse_matrix, str(model) + str(i), plot=Parameters.show_all)
+
+        model.clear()
 
     res = Result.Result(model=model,
                         conversions=conversions,
@@ -115,6 +94,7 @@ def single_evaluation(test, model, conversions, path,
                         avg_train_accuracy=np.mean(train_accuracies),
                         avg_test_accuracy=np.mean(test_accuracies),
                         confuse_matrix=cms)
+    print_memory_usage()
     return res
 
 
@@ -176,4 +156,20 @@ def show_evaluation_results_info(results, plot=1):
 
     # plot
 
+    return
+
+
+def print_memory_usage():
+    allObjects = muppy.get_objects()
+
+    sum = summary.summarize(allObjects)
+
+    orig_stdout = sys.stdout
+    f = open('./results/out.txt', 'a')
+    sys.stdout = f
+    print('\n--------------------------\n')
+    summary.print_(sum)
+    print('\n--------------------------\n')
+    sys.stdout = orig_stdout
+    f.close()
     return

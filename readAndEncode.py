@@ -25,7 +25,16 @@ def readAdjust(filename):
     diagnosisFolder = Path(filename).parents[1]
     
     diagnosis = os.path.basename(diagnosisFolder)
-    
+
+    if file[2] == '_':
+        initials = file[0:2]
+        date = file[3:13]
+        time_of_measurement = file[14:22]
+    else:
+        initials = file[0:3]
+        date = file[4:14]
+        time_of_measurement = file[15:23]
+
     temp = measurement(sig['fsr'][0],
                        sig['gyro1'][0],
                        sig['gyro1'][1],
@@ -39,9 +48,9 @@ def readAdjust(filename):
                        sig['ttapstart'][0,0], 
                        sig['ttapstop'][0,0], 
                        diagnosis,
-                       file[0:2], 
-                       file[3:13],
-                       file[14:22])
+                       initials,
+                       date,
+                       time_of_measurement)
                            
     return temp
 
@@ -206,7 +215,7 @@ def readAllDataAndSplitFromTxt(dataPath, txtfile):
             temp['peak_indices'] = splitDicts[k]['allSplitPoints']
             temp['measurement'] = mes
             allData.append(temp)
-            if splitDicts[k]['id'] != mes.id:
+            if splitDicts[k]['id'].lower() != mes.id.lower():
                 raise('ID MISMATCH!!!!')
             
             

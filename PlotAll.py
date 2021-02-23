@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-import ConversionsGenerator
 import Extractor
 import Parameters
 import Signal
@@ -13,7 +12,6 @@ import Tap
 
 
 def main():
-
     signals = Signal.load_all(Parameters.default_root_path)
 
     for signal in tqdm(signals):
@@ -55,6 +53,11 @@ def main():
                 taps_convolution_last = Extractor.get_taps_convolution_last(taps)
                 taps_self_convolution = Extractor.get_taps_auto_convolution(taps)
 
+                taps_convolution_single_avg = Extractor.get_taps_convolution_single_avg(taps)
+                taps_convolution_single_first = Extractor.get_taps_convolution_single_first(taps)
+                taps_convolution_single_last = Extractor.get_taps_convolution_single_last(taps)
+                taps_self_single_convolution = Extractor.get_taps_single_auto_convolution(taps)
+
                 double_stretch_taps_convolution_avg = Extractor.get_taps_convolution_avg(double_stretch_taps)
                 double_stretch_taps_convolution_first = Extractor.get_taps_convolution_first(double_stretch_taps)
                 double_stretch_taps_convolution_last = Extractor.get_taps_convolution_last(double_stretch_taps)
@@ -71,9 +74,12 @@ def main():
                 taps_max_ordered = [Tap.taps_to_max_sorted_signal(crop_taps)]
                 taps_matrix = [Tap.taps_to_first_matrix_signal(crop_taps, 100, 30)]
 
-                plot_signal = taps
+                taps_diff = Tap.taps_diff(taps)
+                taps_diff_convolution_avg = Extractor.get_taps_convolution_avg(taps_diff)
 
-                plot_taps(plot_signal, signal, plot_all=True)
+                plot_signal = taps_diff_convolution_avg
+
+                plot_taps(plot_signal, signal, plot_all=False)
             except:
                 print("An exception occurred {}".format(signal.diagnosis + ' ' + signal.file[20:42]))
                 traceback.print_exc()
@@ -117,9 +123,11 @@ def plot_taps(taps, signal, plot_all=False, interval=1600):
             plt.axvline(x=tap_time, color='b')
         tap_time = tap_time + len(tap)
 
-    plt.title(signal.diagnosis + ' ' + signal.file[20:42])
+    name = signal.diagnosis + ' ' + signal.initials + ' ' + signal.date + ' ' + signal.time_of_measurement
+    plt.title(name)
     # plt.show()
-    plt.savefig('./results/' + signal.diagnosis + '_' + signal.file[20:42] + '.png')
+    file_name = signal.diagnosis + '_' + signal.initials + '_' + signal.date + '_' + signal.time_of_measurement
+    plt.savefig('./results/' + file_name + '.png')
     plt.close()
 
 
@@ -141,9 +149,11 @@ def plot_nd(spectrogram, signal, plot_all=False, interval=1600, suffix="S"):
     cax.patch.set_alpha(0)
     cax.set_frame_on(False)
     plt.colorbar(orientation='vertical')
-    plt.title(signal.diagnosis + ' ' + signal.file[20:42])
+    name = signal.diagnosis + ' ' + signal.initials + ' ' + signal.date + ' ' + signal.time_of_measurement
+    plt.title(name)
     # plt.show()
-    plt.savefig('./results/' + signal.diagnosis + '_' + signal.file[20:42] + suffix + '.png')
+    file_name = signal.diagnosis + '_' + signal.initials + '_' + signal.date + '_' + signal.time_of_measurement
+    plt.savefig('./results/' + file_name + suffix + '.png')
     plt.close()
     return
 

@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import signal
 
+import Parameters
 import Tap
 import Util
 
@@ -194,11 +195,6 @@ def get_signal_taps_normalised_max_len(measurement, signal):
     crop_taps = Tap.crop_signal_time_taps(taps, max_len)
     return crop_taps
 
-def get_taps_padded_to_fixed_len(measurement, signal):
-    taps = Tap.get_signal_taps(measurement, signal)
-    crop_taps = Tap.crop_signal_time_taps(taps)
-    return crop_taps
-
 
 def get_taps_max_len_normalised(measurement, signals):
     result = get_taps_for_function(measurement, signals, get_signal_taps_max_len_normalised)
@@ -208,6 +204,18 @@ def get_taps_max_len_normalised(measurement, signals):
 def get_signal_taps_max_len_normalised(measurement, signal):
     taps = Tap.get_signal_taps(measurement, signal)
     max_len = Tap.tap_max_len(taps)
+    crop_taps = Tap.crop_signal_time_taps(taps, max_len)
+    stretch_taps = Tap.stretch_time_taps(crop_taps)
+    return stretch_taps
+
+
+def get_taps_set_len(measurement, signals):
+    result = get_taps_for_function(measurement, signals, get_signal_taps_set_len)
+    return result
+
+
+def get_signal_taps_set_len(measurement, signal, max_len=Parameters.max_tap_len):
+    taps = Tap.get_signal_taps(measurement, signal)
     crop_taps = Tap.crop_signal_time_taps(taps, max_len)
     stretch_taps = Tap.stretch_time_taps(crop_taps)
     return stretch_taps
@@ -233,6 +241,17 @@ def get_taps_no_drift_integral(measurement, signals):
 def get_signal_no_drift_integral(measurement, signal):
     taps = Tap.get_signal_taps(measurement, signal)
     no_drift_integral_taps = Tap.taps_no_drift_integral(taps)
+    return no_drift_integral_taps
+
+
+def get_taps_diff(measurement, signals):
+    result = get_taps_for_function(measurement, signals, get_signal_diff)
+    return result
+
+
+def get_signal_diff(measurement, signal):
+    taps = Tap.get_signal_taps(measurement, signal)
+    no_drift_integral_taps = Tap.taps_diff(taps)
     return no_drift_integral_taps
 
 

@@ -89,12 +89,12 @@ class dataPlotter:
         
         
         self.ax[1].cla()
-        self.ax[1].plot(mes.gyro1xT)
-        self.ax[1].plot(mes.gyro1yT)
-        self.ax[1].plot(mes.gyro1zT)
+        #self.ax[1].plot(mes.gyro1xT)
+        #self.ax[1].plot(mes.gyro1yT)
+        #self.ax[1].plot(mes.gyro1zT)
         self.ax[1].plot(mes.gyro2xT)
-        self.ax[1].plot(mes.gyro2xT)
-        self.ax[1].plot(mes.gyro2xT)
+        #self.ax[1].plot(mes.gyro2xT)
+        #self.ax[1].plot(mes.gyro2xT)
         markerline, stemline, baseline = self.ax[1].stem(peak_indices, [10]*len(peak_indices), ':' ,use_line_collection = True)
         plt.setp(markerline, markersize = 1)
         plt.title(fname)
@@ -171,7 +171,8 @@ if __name__ == '__main__':
     splitMethod = args.method
     
     if dataPath is None:
-        dataPath = r'C:\data\icef\tapping\raw data'
+        # dataPath = r'C:\data\icef\tapping\raw data'
+        dataPath = './data/raw data1/'
         
     # ======= READ DATA =======
     if splitMethod == 'auto':

@@ -14,70 +14,62 @@ import Tap
 
 
 class Signal:
+
     def __init__(self, file, fsr,
                  gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, spectrogram_t, spectrogram_i,
-                 tap_task, time, time_tap, ttap_start, ttap_stop, diagnosis, initials, date, time_of_measurement):
+                 tap_task, time, time_tap, ttap_start, ttap_stop, diagnosis, initials, date, time_of_measurement,
+                 shift_time=True):
+        s_rate = 200
+        start_index = int((ttap_start + 0.3) * s_rate) if shift_time else 0
+
+        end_index = int((ttap_stop - 0.3) * s_rate) if shift_time else len(gyro1x)
+
         # file
         self.file = file
 
         # force
-        self.fsr = fsr
+        self.fsr = fsr[start_index:end_index] if len(fsr) > 0 else []
 
         # angular velocity
         # thumb
-        self.gyro1x = gyro1x
-        self.gyro1y = gyro1y
-        self.gyro1z = gyro1z
+        self.gyro1x = gyro1x[start_index:end_index] if len(gyro1x) > 0 else []
+        self.gyro1y = gyro1y[start_index:end_index] if len(gyro1y) > 0 else []
+        self.gyro1z = gyro1z[start_index:end_index] if len(gyro1z) > 0 else []
         self.gyro1Vec = np.sqrt(np.square(self.gyro1x) +
                                 np.square(self.gyro1y) +
                                 np.square(self.gyro1z))
         self.gyro1VecSign = signed_amplitude(self.gyro1x, self.gyro1y, self.gyro1z)
 
         # forefinger
-        self.gyro2x = gyro2x
-        self.gyro2y = gyro2y
-        self.gyro2z = gyro2z
+        self.gyro2x = gyro2x[start_index:end_index] if len(gyro2x) > 0 else []
+        self.gyro2y = gyro2y[start_index:end_index] if len(gyro2y) > 0 else []
+        self.gyro2z = gyro2z[start_index:end_index] if len(gyro2z) > 0 else []
         self.gyro2Vec = np.sqrt(np.square(self.gyro2x) +
                                 np.square(self.gyro2y) +
                                 np.square(self.gyro2z))
         self.gyro2VecSign = signed_amplitude(self.gyro2x, self.gyro2y, self.gyro2z)
 
         # thumb spectrogram WVD
-        self.spectrogram_t = spectrogram_t  # np.swapaxes(spectrogram_t, 0, 1)
+        self.spectrogram_t = spectrogram_t[start_index:end_index] if len(spectrogram_t) > 0 else []
+        # np.swapaxes(spectrogram_t, 0, 1)
 
         # forefinger spectrogram WVD
-        self.spectrogram_i = spectrogram_i  # np.swapaxes(spectrogram_i, 0, 1)
+        self.spectrogram_i = spectrogram_i[start_index:end_index] if len(spectrogram_i) > 0 else []
+        # np.swapaxes(spectrogram_i, 0, 1)
 
         # other
-        self.sampling_rate = 200  # sampling rate [Hz]
+        self.sampling_rate = s_rate  # sampling rate [Hz]
         self.tap_task = tap_task  # LHEO/LHEC/RHEO/RHEC (left or right hand/eyes open or closed)
         self.time = time  # time
         self.time_tap = time_tap  # list of taps start/end time
-        self.ttap_start = ttap_start  # single value, when the actual signal started SECONDS
-        self.ttap_stop = ttap_stop  # single value, when the actual signal stopped SECONDS
+        self.ttap_start = ttap_start + 0.3 if not shift_time else 0  # single value, when the actual signal started SECONDS
+        self.ttap_stop = ttap_stop - 0.3 if not shift_time else len(
+            gyro1x) / s_rate  # single value, when the actual signal stopped SECONDS
         self.diagnosis = diagnosis  # PD, PSP, MSA, CTRL
         self.initials = initials  # person name and surname initials
         self.date = date  # date of recording
         self.time_of_measurement = time_of_measurement  # what time that date
         self.length = len(gyro1x)
-        
-        
-        # import code
-        # code.interact(local=locals())
-        
-        start_sample = int((self.ttap_start + 0.3) * self.sampling_rate)
-        stop_sample = int((self.ttap_stop - 0.3) * self.sampling_rate)
-    
-        
-        self.gyro1x = self.gyro1x[start_sample:stop_sample]
-        self.gyro1y = self.gyro1y[start_sample:stop_sample]
-        self.gyro1z = self.gyro1z[start_sample:stop_sample]
-        self.gyro2x = self.gyro2x[start_sample:stop_sample]
-        self.gyro2y = self.gyro2y[start_sample:stop_sample]
-        self.gyro2z = self.gyro2z[start_sample:stop_sample]
-        self.fsr = self.fsr[start_sample:stop_sample]
-        self.time = self.time[0:stop_sample - start_sample]
-    
 
     def plot_signal(self, tmin, tmax):
         # gyro1
@@ -170,7 +162,7 @@ def plot_class_distribution(sigs):
     text = 'There are '
     all_diagnoses = Diagnosis.get_diagnosis_names()
     for diagnosis in all_diagnoses:
-        diag = np.sum([d == diagnosis for d in diagnoses])
+        diag = np.sum([Diagnosis.equals(d, diagnosis) for d in diagnoses])
         cnts.append(diag)
         text = text + '{} {},'.format(diag, diagnosis)
 
@@ -274,7 +266,7 @@ def load_minja(root, directory, file):
         time_of_measurement = file[27:35]
     ThumbWVD = []
     IndexWVD = []
-    
+
     temp = Signal(file, fsr, gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, ThumbWVD, IndexWVD, tap_task, time,
                   time_tap, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
 

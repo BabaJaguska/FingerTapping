@@ -52,8 +52,6 @@ class Result:
                 accuracy, clean(precision, decimal_places - 2), clean(recall, decimal_places - 2),
                 clean(f1, decimal_places - 2),
                 self.confuse_matrix)
-            
-
         except:
             res = ''
         return res
@@ -65,6 +63,42 @@ class Result:
         with open(file_name, 'a') as file:
             file.write(str(self))
             file.close()
+        return
+
+    def save_csv(self, file_name):
+        import csv
+        import os
+        hasHeader = os.path.isfile(file_name)
+        with open(file_name, 'a', newline='') as csvfile:
+            results_writer = csv.writer(csvfile, delimiter=',')
+
+            if not hasHeader:
+                results_writer.writerow(['Model', 'Conversions', 'test_type',
+                                         'avg_train_accuracy',
+                                         'avg_val_accuracy',
+                                         'avg_test_accuracy',
+                                         'nConvLayers',
+                                         'kernelSize',
+                                         'stride',
+                                         'constraint',
+                                         'nInitialFilters',
+                                         'batchSize',
+                                         'nDenseUnits',
+                                         'dropout_rate1',
+                                         'dropout_rate_2'])
+
+            results_writer.writerow([self.model, self.conversions, self.test_type,
+                                     self.avg_train_accuracy, self.avg_validation_accuracy, self.avg_test_accuracy,
+                                     self.configuration['nConvLayers'],
+                                     self.configuration['kernelSize'],
+                                     self.configuration['stride'],
+                                     self.configuration['constraint'],
+                                     self.configuration['nInitialFilters'],
+                                     self.configuration['batchSize'],
+                                     self.configuration['nDenseUnits'],
+                                     self.configuration['dropout_rate1'],
+                                     self.configuration['dropout_rate2']])
+
         return
 
 

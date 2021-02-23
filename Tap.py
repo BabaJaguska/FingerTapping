@@ -65,10 +65,10 @@ def stretch(signal, new_len):
 def crop_signal_time_taps(taps, new_len=Parameters.stretch_len, default_value=0):
     result = []
     for tap in taps:
-        if tap.shape[1] >= new_len:
-            new_tap = np.resize(tap, (tap.shape[0],new_len))
+        if len(tap) >= new_len:
+            new_tap = np.resize(tap, (new_len,))
         else:
-            new_tap = np.lib.pad(tap,((0,0),(0, new_len - tap.shape[1])), 'constant', constant_values=default_value)
+            new_tap = np.lib.pad(tap, (0, new_len - len(tap)), 'constant', constant_values=default_value)
         result.append(new_tap)
     return result
 
@@ -178,6 +178,23 @@ def taps_no_drift_integral(taps):
             result.append(tmp_tap)
         else:
             new_tap = Util.calc_no_drift_integral(tap)
+            result.append(new_tap)
+
+    return result
+
+
+def taps_diff(taps):
+    result = []
+    for tap in taps:
+        if len(tap.shape) > 1:
+            tmp = []
+            for signal in tap:
+                new_tap = Util.calc_diff(signal)
+                tmp.append(new_tap)
+            tmp_tap = np.asarray(tmp) if len(tmp) > 0 else []
+            result.append(tmp_tap)
+        else:
+            new_tap = Util.calc_diff(tap)
             result.append(new_tap)
 
     return result
@@ -336,11 +353,12 @@ def crop_val_taps(taps, min_val, max_val):  # TODO da li radi?
         result.append(new_tap)
     return result
 
-def concatenate_taps_3D(taps, max_num_taps = Parameters.max_taps):
+
+def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps):
     '''
     Concatenates taps in the third dimension
     Suitable for time distributed models
-    
+
     Parameters
     ----------
     taps : list of ndarrays
@@ -350,18 +368,18 @@ def concatenate_taps_3D(taps, max_num_taps = Parameters.max_taps):
     -------
     result: ndarray
         Taps reshaped into ndarray n_taps x tap_length x n_channels???
-    
+
     '''
 
     if len(taps) == 0:
         return []
-    
-    result = np.array(taps)   
+
+    result = np.array(taps)
     if result.shape[0] >= max_num_taps:
-        result = result[0 : max_num_taps, : , :]
+        result = result[0: max_num_taps, :, :]
     else:
         temp = np.zeros([max_num_taps - result.shape[0], result.shape[1], result.shape[2]])
         result = np.concatenate([result, temp])
-    #result = np.swapaxes(result, 1,-1)
+    # result = np.swapaxes(result, 1,-1)
 
     return result
