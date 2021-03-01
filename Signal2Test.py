@@ -13,6 +13,7 @@ def convert_measurements(measurements, conversions, start, end):
     diagnoses = []
     for measurement in measurements:
         _signals, _diagnoses = convert_measurement(measurement, start, end, conversions)
+        
         if isinstance(_signals, list):
             if not _signals:
                 continue
@@ -42,24 +43,19 @@ def convert_measurement(measurement, start, end, conversions, def_val=Parameters
         cropped_signals = adjust_signals(measurement, signals, start, end, def_val)
 
         taps = get_taps(measurement, cropped_signals, tap_type)
-
+   
         function_taps = get_taps_function(taps, function_type)
-
         concatenated_taps = get_concatenated_taps(function_taps, concatenation_type)
+        concatenated_taps = crop_signals(concatenated_taps, 0, Parameters.samples, concatenation_type, def_val)
 
-        if concatenation_type == 'concatenate_3D': # TODO urediti ovo da struktura bude jednoobrazna
-            pass
-        else:
-            concatenated_taps = crop_signals(concatenated_taps, 0, Parameters.samples, def_val)
-
-        result_taps.append(concatenated_taps)
-
-    if concatenation_type == 'concatenate_3D': # TODO urediti ovo da struktura bude jednoobrazna
-        result_signals = np.array(result_taps)
-    else:
-        result_signals = concatenate_combinations(result_taps)
+        result_taps += concatenated_taps
+        result_signals = concatenate_combinations(result_taps, concatenation_type)
+        
 
     diagnosis = Diagnosis.encode_diagnosis(measurement.diagnosis)
+    
+    if len(result_signals.shape) == 4: #TODO: DEBUG!! NE BUDE 4D VIDI ZASTO
+        diagnosis = np.tile(diagnosis, (result_signals.shape[0],1))
 
     return result_signals, diagnosis
 
@@ -184,25 +180,29 @@ def adjust_signals(measurement, signals, start, end, def_val=0):
     return crops
 
 
-def crop_signals(signals, start_index, end_index, def_val=0):
+def crop_signals(signals, start_index, end_index, concatenation_type, def_val=0):
     result = []
-    for signal in signals:
-        crops = signal[..., start_index:end_index] #<--- ODNOSI SE NA ZELJENU DUZINU SIGNALA, NE NA KRAJ TAPKANJA
-
-        l1 = crops.shape[len(crops.shape) - 1]
-        s = end_index - start_index - l1
-        if s > 0:
-            padding = []
-            for i in range(len(crops.shape) - 1):
-                padding.append((0, 0))
-            padding.append((0, s))
-            padding = tuple(padding)
-            crops = np.lib.pad(crops, padding, 'constant', constant_values=def_val)
-        if len(crops.shape) > 1:
-            result.append(crops)  # TODO nadovezuje ih u 2D
-        else:
-            result.append([crops])
-    crops = np.concatenate(result) if len(result) > 0 else []
+    if concatenation_type != 'concatenate_3D': 
+        for signal in signals:
+            crops = signal[..., start_index:end_index] #<--- ODNOSI SE NA ZELJENU DUZINU SIGNALA, NE NA KRAJ TAPKANJA
+    
+            l1 = crops.shape[len(crops.shape) - 1]
+            s = end_index - start_index - l1
+            if s > 0:
+                padding = []
+                for i in range(len(crops.shape) - 1):
+                    padding.append((0, 0))
+                padding.append((0, s))
+                padding = tuple(padding)
+                crops = np.lib.pad(crops, padding, 'constant', constant_values=def_val)
+            if len(crops.shape) > 1:
+                result.append(crops)  # TODO nadovezuje ih u 2D
+            else:
+                result.append([crops])
+        crops = np.concatenate(result) if len(result) > 0 else []
+        
+    else:
+        crops = signals
     return crops
 
 
@@ -221,20 +221,25 @@ def reshape(x, y):
     return x, y
 
 
-def concatenate_combinations(result_taps):
+def concatenate_combinations(result_taps, concatenation_type):
     """
     input: list<broj kombinacija signala, ndarray<broj signala, broj odbiraka, >>
 	output: ndarray<broj signala, broj odbiraka, >
     """
-    signals = []
-    for tap in result_taps:
-        if len(tap) > 0:
-            for signal in tap:
-                signals.append(signal)
-        else:
-            signals = []
-            break
-    result = np.asarray(signals) if len(signals) > 0 else []
+    
+    if concatenation_type == 'concatenate_3D': # TODO urediti ovo da struktura bude jednoobrazna
+        result = np.array(result_taps)
+    else:
+    
+        signals = []
+        for tap in result_taps:
+            if len(tap) > 0:
+                for signal in tap:
+                    signals.append(signal)
+            else:
+                signals = []
+                break
+        result = np.asarray(signals) if len(signals) > 0 else []
     return result
 
 
@@ -260,3 +265,6 @@ def crop_taps(measurement, taps, start, end, def_val):  # TODO ne koristi se
             result.append(tmp)
         start = end
     return result
+
+
+        

@@ -51,11 +51,15 @@ class ConcatenationType:
     first_matrix = 'concatenate_first_matrix'  # isto sto i concatenate_first samo sto svaki tap odseca na max_tap_len, i uzima max_taps tapova
     d3 = 'concatenate_3D'
 
+class AugmentationType: # erm...
+    none = 'augmentation_none'
+    sliding_taps = 'sliding_taps'
 
 conversion_combinations = [
     [SignalType.values, TapType.set_len, FunctionType.none, ConcatenationType.d3]
 ]
 
+augmentationType = 'sliding_taps'  # TODO: popravi ovo, kako se koristi klasa? gde ide conversion_combinations
 conversion_type = 'create_simple'  # koristi conversion_combinations za obradu
 
 # conversion_type = 'create_full_list' # za obradu pravi listu gde se uzima svaki SignalType, TapType, FunctionType, ConcatenationType, oni koji ne treba da se koriste zakomentarisati

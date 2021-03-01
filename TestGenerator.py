@@ -55,7 +55,7 @@ def create_test(test):
                                      test.test_type,
                                      test.n_folds)
         
-    if isinstance(result, list):  
+    if isinstance(result, list):  # folded proizvodi niz testova, ostali samo 1
         for r in result:
             r.measurements = test.measurements
             r.start_time = test.start_time
@@ -74,7 +74,7 @@ def create_simple_tests(measurements, test_type, train_percent, test_percent):
     for diagnosis in Diagnosis.get_diagnosis_names():
         extract_test_and_concatenate(measurements, diagnosis, train_percent, test_percent, train_data, test_data,
                                      validation_data)
-    np.random.shuffle(train_data) # Ovo shufflovanje remeti seed za train/test split
+    np.random.shuffle(train_data) 
     np.random.shuffle(test_data)
     np.random.shuffle(validation_data)
     test = Test(test_type=test_type,
@@ -99,8 +99,10 @@ def create_folded_tests(measurements, test_type, n_folds):
         train_ids, test_ids = unique_ids[train_index], unique_ids[test_index]
         train_data = [m for m in measurements if m.id in train_ids]
         test_data = [m for m in measurements if m.id in test_ids]
+        np.random.shuffle(train_data) 
+        np.random.shuffle(test_data)  
         validation_data = test_data
-        
+ 
         test = Test(test_type = test_type,
                     train_data = train_data,
                     test_data = test_data,
@@ -132,7 +134,7 @@ def extract_test(measurements, diagnosis, train_percent, test_percent):
     train_data, test_data, validation_data = [], [], []
     # Split into train, test, val sets
 
-    train_num = int(train_percent * len(candidates))
+    #train_num = int(train_percent * len(candidates))
     test_num = int(test_percent * len(candidates))
     validation_num = int(validation_percent * len(candidates))
 
@@ -160,7 +162,7 @@ def extract_test(measurements, diagnosis, train_percent, test_percent):
 
 def extract_test_1(measurements, diagnosis, train_percent, test_percent):
     # promenila da se deli po id, ne po candidate signals
-    # stavila seed #TODO ovoj nije dobro, uvek craca istu kombinaciju, te nema slucajnosti
+    #TODO seed -- ovoj nije dobro, uvek craca istu kombinaciju, te nema slucajnosti
 
     candidates = [sig for i, sig in enumerate(measurements) if Diagnosis.equals(sig.diagnosis, diagnosis)]
     validation_percent = 1 - train_percent - test_percent
@@ -169,7 +171,7 @@ def extract_test_1(measurements, diagnosis, train_percent, test_percent):
 
     all_ids_in_diagnosis = np.unique([candidate.id for candidate in candidates])
 
-    train_num = int(train_percent * len(all_ids_in_diagnosis))
+    #train_num = int(train_percent * len(all_ids_in_diagnosis))
     test_num = int(test_percent * len(all_ids_in_diagnosis))
     validation_num = int(validation_percent * len(all_ids_in_diagnosis))
 
