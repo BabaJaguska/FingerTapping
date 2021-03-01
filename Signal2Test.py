@@ -21,8 +21,13 @@ def convert_measurements(measurements, conversions, start, end):
             if _signals.size == 0:
                 continue
 
-            signals.append(_signals)
-            diagnoses.append(_diagnoses)
+            
+            if isinstance(_signals, list):
+                signals += _signals
+                diagnoses += _diagnoses
+            else:
+                signals += list(_signals)
+                diagnoses += list(_diagnoses)
 
     signals, diagnoses = reshape(signals, diagnoses)
 
@@ -54,7 +59,7 @@ def convert_measurement(measurement, start, end, conversions, def_val=Parameters
 
     diagnosis = Diagnosis.encode_diagnosis(measurement.diagnosis)
     
-    if len(result_signals.shape) == 4: #TODO: DEBUG!! NE BUDE 4D VIDI ZASTO
+    if len(result_signals.shape) > 3: #TODO: DEBUG!! NE BUDE 4D VIDI ZASTO
         diagnosis = np.tile(diagnosis, (result_signals.shape[0],1))
 
     return result_signals, diagnosis
@@ -213,8 +218,9 @@ def reshape(x, y):
     sizes_x = tuple(sizes_x)
     x = np.reshape(x, sizes_x)
     x = np.swapaxes(x, -2, -1)
-    if len(x.shape) > 3:
-        x = np.squeeze(x, axis = 1) # pazi ovo da li remeti non-3D pakovanje?
+    # if len(x.shape) > 3:
+    #     if x.shape[1] == 1:
+    #         x = np.squeeze(x, axis = 1) # pazi ovo da li remeti non-3D pakovanje?
     sizes_y = (len(x), y[0].shape[0])
     y = np.reshape(y, sizes_y)
     print('Shape of X: ', x.shape)

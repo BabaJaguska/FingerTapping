@@ -376,15 +376,17 @@ def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps, augmentation_typ
 
     result = np.array(taps)
     if result.shape[0] < max_num_taps:
+        results = []
         temp = np.zeros([max_num_taps - result.shape[0], result.shape[1], result.shape[2]])
-        results = np.concatenate([result, temp])
+        temp_result = np.concatenate([result, temp])
+        results.append(temp_result)
         
     else:
         if augmentation_type == 'none':
             results = result[0: max_num_taps, :, :]
             # result = np.swapaxes(result, 1,-1)
         elif augmentation_type == 'sliding_taps':
-            tap_stride = 5
+            tap_stride = 5  # TODO: pamaterize 
             n_signals = int((result.shape[0] - max_num_taps)/tap_stride) + 1
             
             results = []
@@ -393,6 +395,8 @@ def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps, augmentation_typ
                 end_idx = i * tap_stride + max_num_taps
                 temp_result = result[start_idx:end_idx, :, :]
                 results.append(temp_result)
+                
+            #results = np.array(results)
                 
             
           

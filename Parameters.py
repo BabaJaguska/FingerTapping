@@ -142,11 +142,11 @@ def_signal_val = 0  # vrednost za dopunu
 
 samples = (end_time - start_time) * 200  # koliko ima odabiraka u signalu
 
-max_taps = 20  # koliko tapova se posmatra, samo za first_matrix
+max_taps = 15  # koliko tapova se posmatra, samo za first_matrix
 max_tap_len = 100  # kolika je maksimalna duzina tapa. samo za set_len i first_matrix
 # samples = max_tap_len * max_taps # koliko ima odabiraka u signalu
 
-stretch_len = 300  # na koliko odbiraka da isteglji signal
+stretch_len = 600  # na koliko odbiraka da isteglji signal
 
 # =============================================================================
 # MISCELLANEOUS
