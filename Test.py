@@ -4,7 +4,8 @@ import Signal
 
 class Test:
     def __init__(self, test_type, train_data=None, validation_data=None, test_data=None,
-                 measurements=None, start_time=0, end_time=0, train_percent=0, test_percent=0, is_loaded=True):
+                 measurements=None, start_time=0, end_time=0, train_percent=0, test_percent=0,
+                 is_loaded=True, n_folds = 5):
         self.test_type = test_type
         self.train_data = train_data
         self.validation_data = validation_data
@@ -15,6 +16,7 @@ class Test:
         self.train_percent = train_percent
         self.test_percent = test_percent
         self.is_loaded = is_loaded
+        self.n_folds = n_folds
 
         return
 

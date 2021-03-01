@@ -53,7 +53,7 @@ class ConcatenationType:
 
 
 conversion_combinations = [
-    [SignalType.values, TapType.set_len, FunctionType.single_auto, ConcatenationType.d3]
+    [SignalType.values, TapType.set_len, FunctionType.none, ConcatenationType.d3]
 ]
 
 conversion_type = 'create_simple'  # koristi conversion_combinations za obradu
@@ -121,8 +121,9 @@ epochs = 200  # koliko epoha za izracunavanje
 # TESTS
 # =============================================================================
 
-test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj grupi (test, traim, validation)
+# test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj grupi (test, traim, validation)
 # test_type = 'create_mixed_tests' # jedan pacijent se moze naci u vise grupa (test, traim, validation)
+test_type = 'create_folded_tests' # 1 pacijent u 1 grupi ali K fold (5 x [train/test])
 
 number_of_tests = 1  # koliko razlicitih odabiranja pacijenata da se koristi
 

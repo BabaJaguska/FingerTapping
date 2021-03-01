@@ -70,6 +70,7 @@ class Signal:
         self.date = date  # date of recording
         self.time_of_measurement = time_of_measurement  # what time that date
         self.length = len(gyro1x)
+        self.id = self.initials + '_' + self.date + '_' + self.diagnosis
 
     def plot_signal(self, tmin, tmax):
         # gyro1
