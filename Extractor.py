@@ -18,8 +18,8 @@ def get_one_signal(measurement):  # TODO obrisati ovo je za test
 
 
 def get_values(measurement):
-    result = [measurement.gyro1x, measurement.gyro1y, measurement.gyro1z, measurement.gyro1x, measurement.gyro1y,
-              measurement.gyro1z]
+    result = np.array([measurement.gyro1x, measurement.gyro1y, measurement.gyro1z, measurement.gyro1x, measurement.gyro1y,
+              measurement.gyro1z])
     return result
 
 

@@ -60,7 +60,7 @@ class Signal:
         # other
         self.sampling_rate = s_rate  # sampling rate [Hz]
         self.tap_task = tap_task  # LHEO/LHEC/RHEO/RHEC (left or right hand/eyes open or closed)
-        self.time = time  # time
+        self.time = time[start_index:end_index]  # time
         self.time_tap = time_tap  # list of taps start/end time
         self.ttap_start = ttap_start + 0.3 if not shift_time else 0  # single value, when the actual signal started SECONDS
         self.ttap_stop = ttap_stop - 0.3 if not shift_time else len(

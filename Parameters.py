@@ -56,7 +56,7 @@ class AugmentationType: # erm...
     sliding_taps = 'sliding_taps'
 
 conversion_combinations = [
-    [SignalType.values, TapType.set_len, FunctionType.none, ConcatenationType.d3]
+    [SignalType.values, TapType.none, FunctionType.none, ConcatenationType.none]
 ]
 
 augmentationType = 'sliding_taps'  # TODO: popravi ovo, kako se koristi klasa? gde ide conversion_combinations
@@ -105,13 +105,13 @@ one_attr_step = 3
 # MODEL TOPOLOGIES
 # =============================================================================
 
-# model_topology_type = 'CNNMLModel'
+model_topology_type = 'CNNMLModel'
 # model_topology_type = 'CNNSequentialMLModel'
 # model_topology_type = 'CNNSequential2DMLModel'
 # model_topology_type = 'CNNRandomMLModel'
 # model_topology_type = 'LSTMMLModel'
 # model_topology_type = 'MultiHeadedMLModel'
-model_topology_type = 'CNNLSTMMLModel'
+# model_topology_type = 'CNNLSTMMLModel'
 
 
 # =============================================================================
@@ -125,9 +125,9 @@ epochs = 200  # koliko epoha za izracunavanje
 # TESTS
 # =============================================================================
 
-# test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj grupi (test, traim, validation)
+test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj grupi (test, traim, validation)
 # test_type = 'create_mixed_tests' # jedan pacijent se moze naci u vise grupa (test, traim, validation)
-test_type = 'create_folded_tests' # 1 pacijent u 1 grupi ali K fold (5 x [train/test])
+# test_type = 'create_folded_tests' # 1 pacijent u 1 grupi ali K fold (5 x [train/test])
 
 number_of_tests = 1  # koliko razlicitih odabiranja pacijenata da se koristi
 
@@ -137,17 +137,27 @@ test_percent = 0.2  # procenat za testiranje
 validation_percent = 0.1  # procenat za validaciju, ne koristi se
 
 start_time = 0  # pocetak signala koji se posmatra
-end_time = 10  # kraj signala koji se posmatra, nezavisno od toga koliko signal traje, ako je kraci onda dopuna nulama
+end_time = 10.115  # kraj signala koji se posmatra, nezavisno od toga koliko signal traje, ako je kraci onda dopuna nulama
 def_signal_val = 0  # vrednost za dopunu
 
-samples = (end_time - start_time) * 200  # koliko ima odabiraka u signalu
+samples = round((end_time - start_time) * 200)  # koliko ima odabiraka u signalu
 
-max_taps = 15  # koliko tapova se posmatra, samo za first_matrix
+max_taps = 5  # koliko tapova se posmatra, samo za first_matrix
 max_tap_len = 100  # kolika je maksimalna duzina tapa. samo za set_len i first_matrix
 # samples = max_tap_len * max_taps # koliko ima odabiraka u signalu
+tap_stride = 1
 
-stretch_len = 600  # na koliko odbiraka da isteglji signal
+stretch_len = 400  # na koliko odbiraka da isteglji signal
 
+# ============================================================================
+# GAN
+#=============================================================================
+z_dim = 128
+n_classes = 4
+batch_size = 64
+n_epochs = 300
+lr = 0.0002
+device = 'cuda'
 # =============================================================================
 # MISCELLANEOUS
 # =============================================================================

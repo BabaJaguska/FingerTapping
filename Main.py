@@ -17,6 +17,8 @@ def main():
 
     tests = TestGenerator.create_tests(measurements)
     Test.show_tests_info(tests, measurements, plot=Parameters.show_all)
+    
+    tempTrainData = tests[0].train_data
 
     models = ModelTopologyGenerator.create_models()
     MLModelTopology.show_models_info(models, plot=Parameters.show_all)

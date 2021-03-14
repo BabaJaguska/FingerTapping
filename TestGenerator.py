@@ -17,7 +17,7 @@ def create_tests(measurements, test_type=Parameters.test_type,
         test = create_test_info(measurements, test_type, start_time, end_time, 
                                 train_percent, test_percent)
         test = create_test(test)
-        tests += test
+        tests.append(test)
 
     return tests
 

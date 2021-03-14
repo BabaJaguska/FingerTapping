@@ -21,13 +21,18 @@ def convert_measurements(measurements, conversions, start, end):
             if _signals.size == 0:
                 continue
 
-            
-            if isinstance(_signals, list):
-                signals += _signals
-                diagnoses += _diagnoses
-            else:
-                signals += list(_signals)
-                diagnoses += list(_diagnoses)
+            # FIXME: NE VALJA, NE RADI ZA SVE VIDOVE ULAZA
+            # if isinstance(_signals, list):
+            #     signals += _signals
+
+            # else:
+            #     signals += list(_signals)
+                
+            signals.append(_signals)
+                
+        
+            diagnoses.append( _diagnoses)
+
 
     signals, diagnoses = reshape(signals, diagnoses)
 
@@ -38,7 +43,8 @@ def convert_measurement(measurement, start, end, conversions, def_val=Parameters
     result_taps = []
     concatenation_type = None
     for conversion in conversions:
-        signal_type = conversion[0]
+        signal_type = conversion[0][0] #FIXME: ponekad je conversion lista u listi !??
+        #konkretno za 1 conversion signal values, taps none... 
         tap_type = conversion[1] if len(conversion) > 1 else None
         function_type = conversion[2] if len(conversion) > 2 else None
         concatenation_type = conversion[3] if len(conversion) > 3 else None
@@ -53,7 +59,10 @@ def convert_measurement(measurement, start, end, conversions, def_val=Parameters
         concatenated_taps = get_concatenated_taps(function_taps, concatenation_type)
         concatenated_taps = crop_signals(concatenated_taps, 0, Parameters.samples, concatenation_type, def_val)
 
-        result_taps += concatenated_taps
+        if Parameters.ConcatenationType == 'concatenate_3D':
+            result_taps += concatenated_taps
+        else:
+            result_taps.append(concatenated_taps)
         result_signals = concatenate_combinations(result_taps, concatenation_type)
         
 
@@ -216,13 +225,19 @@ def reshape(x, y):
     for i in range(len(x[0].shape)):
         sizes_x.append(x[0].shape[i])
     sizes_x = tuple(sizes_x)
-    x = np.reshape(x, sizes_x)
-    x = np.swapaxes(x, -2, -1)
+    
+    if len(sizes_x) > 2:
+        x = np.reshape(x, sizes_x)
+        x = np.swapaxes(x, -2, -1) #FIXME: ne treba za svaki vid ulaza
+    else:
+        x = np.array(x)
     # if len(x.shape) > 3:
     #     if x.shape[1] == 1:
     #         x = np.squeeze(x, axis = 1) # pazi ovo da li remeti non-3D pakovanje?
     sizes_y = (len(x), y[0].shape[0])
-    y = np.reshape(y, sizes_y)
+    
+    
+    y = np.array(y)
     print('Shape of X: ', x.shape)
     return x, y
 

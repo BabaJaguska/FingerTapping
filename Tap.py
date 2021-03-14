@@ -354,7 +354,9 @@ def crop_val_taps(taps, min_val, max_val):  # TODO da li radi?
     return result
 
 
-def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps, augmentation_type = Parameters.augmentationType):
+def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps,
+                        augmentation_type = Parameters.augmentationType,
+                        tap_stride = Parameters.tap_stride):
     '''
     Concatenates taps in the third dimension
     Suitable for time distributed models
@@ -386,7 +388,7 @@ def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps, augmentation_typ
             results = result[0: max_num_taps, :, :]
             # result = np.swapaxes(result, 1,-1)
         elif augmentation_type == 'sliding_taps':
-            tap_stride = 5  # TODO: pamaterize 
+            
             n_signals = int((result.shape[0] - max_num_taps)/tap_stride) + 1
             
             results = []
