@@ -45,6 +45,9 @@ def mainAug():
 
     # evaluation_results = Evaluator.multiple_evaluations(tests, models, conversions)
     # Evaluator.show_evaluation_results_info(evaluation_results, plot=1)
+    
+    # e onda kad ovo proradi, odabrati neki dobar checkpoint,
+    # izgenerisati gomilu podataka i dodati na train set za one druge klasifikatore
 
     return
 

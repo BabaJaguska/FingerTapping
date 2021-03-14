@@ -132,12 +132,12 @@ test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj
 number_of_tests = 1  # koliko razlicitih odabiranja pacijenata da se koristi
 
 # Split into train, test, val sets
-train_percent = 0.7  # procenat za treniranje
-test_percent = 0.2  # procenat za testiranje
-validation_percent = 0.1  # procenat za validaciju, ne koristi se
+train_percent = 0.85  # procenat za treniranje
+test_percent = 0.1  # procenat za testiranje
+# validation_percent = 0.1  # procenat za validaciju, ne koristi se
 
 start_time = 0  # pocetak signala koji se posmatra
-end_time = 10.115  # kraj signala koji se posmatra, nezavisno od toga koliko signal traje, ako je kraci onda dopuna nulama
+end_time = 10.235  # kraj signala koji se posmatra, nezavisno od toga koliko signal traje, ako je kraci onda dopuna nulama
 def_signal_val = 0  # vrednost za dopunu
 
 samples = round((end_time - start_time) * 200)  # koliko ima odabiraka u signalu
@@ -152,12 +152,14 @@ stretch_len = 400  # na koliko odbiraka da isteglji signal
 # ============================================================================
 # GAN
 #=============================================================================
-z_dim = 128
+# generator
+z_dim = 2048
 n_classes = 4
 batch_size = 64
-n_epochs = 300
-lr = 0.0002
+n_epochs = 600
+lr = 0.002
 device = 'cuda'
+display_step = 100
 # =============================================================================
 # MISCELLANEOUS
 # =============================================================================

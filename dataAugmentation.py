@@ -36,7 +36,7 @@ from torchvision import transforms
 from torchvision.utils import make_grid
 from torch.utils.data import DataLoader, Dataset
 import Parameters
-torch.manual_seed(0) # Set for our testing purposes, please do not change!
+# torch.manual_seed(0) # Set for our testing purposes, please do not change!
 
 def show_tensor_images(image_tensor, num_images=25, size=(3, 32, 32), nrow=5, show=True):
     '''
@@ -55,10 +55,10 @@ def show_tensor_images(image_tensor, num_images=25, size=(3, 32, 32), nrow=5, sh
     plt.plot(image_unflat[1].T)
         
     plt.subplot(3,1,2)
-    plt.plot(image_unflat[2].T)
+    plt.plot(image_unflat[10].T)
         
     plt.subplot(3,1,3)
-    plt.plot(image_unflat[3].T)
+    plt.plot(image_unflat[-1].T)
     
     if show:
         plt.show()
@@ -108,15 +108,17 @@ class Generator(nn.Module):
         self.input_dim = input_dim
         # Build the neural network
         self.gen = nn.Sequential(
-            self.make_gen_block(input_dim, hidden_dim * 16, kernel_size=10, stride = 4),
-            self.make_gen_block(hidden_dim * 16, hidden_dim * 8, kernel_size=10, stride=3),
-            self.make_gen_block(hidden_dim * 8, hidden_dim * 4, kernel_size=10, stride = 3),
-            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=10, stride = 2),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=10, stride = 2),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=10, stride = 2),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=7, stride = 1),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 1, kernel_size=5, stride = 1),
-            self.make_gen_block(hidden_dim, im_chan, kernel_size=5, final_layer=True),
+            self.make_gen_block(input_dim, hidden_dim * 16, kernel_size = 5, stride = 2),
+            self.make_gen_block(hidden_dim * 16, hidden_dim * 8, kernel_size=5, stride=1),
+            self.make_gen_block(hidden_dim * 8, hidden_dim * 8, kernel_size=5, stride=1),
+            self.make_gen_block(hidden_dim * 8, hidden_dim * 4, kernel_size=5, stride = 2),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 4, kernel_size=5, stride = 2),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=5, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=5, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=5, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 1, kernel_size=5, stride = 2),
+            self.make_gen_block(hidden_dim * 1, hidden_dim * 1, kernel_size=3, stride = 1),
+            self.make_gen_block(hidden_dim, im_chan, kernel_size=3, final_layer=True),
         )
 
     def make_gen_block(self, input_channels, output_channels, kernel_size=3, stride=2, final_layer=False):
@@ -140,7 +142,7 @@ class Generator(nn.Module):
         else:
             return nn.Sequential(
                 nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
-                nn.Tanh(),
+                # nn.Tanh(),
             )
 
     def forward(self, noise):
@@ -206,7 +208,7 @@ n_classes = 4
 
 # n_epochs = 300
 # z_dim = 128
-display_step = 50
+# display_step = 50
 # batch_size = 64
 # lr = 0.0002
 # device = 'cuda'
@@ -281,12 +283,13 @@ class Discriminator(nn.Module):
             6 za tapping default
       hidden_dim: the inner dimension, a scalar
     '''
-    def __init__(self, im_chan=6, hidden_dim=32):
+    def __init__(self, im_chan=6, hidden_dim=16):
         super(Discriminator, self).__init__()
         self.disc = nn.Sequential(
             self.make_disc_block(im_chan, hidden_dim, stride=1),
-            self.make_disc_block(hidden_dim, hidden_dim * 2),
-            self.make_disc_block(hidden_dim * 2, hidden_dim * 4),
+            self.make_disc_block(hidden_dim, hidden_dim * 2, kernel_size = 7),
+            self.make_disc_block(hidden_dim * 2, hidden_dim * 4, kernel_size = 5),
+            self.make_disc_block(hidden_dim * 4, hidden_dim * 4),
             self.make_disc_block(hidden_dim * 4, 1, final_layer=True), # a sta je ovo 1?  fake/real?
         )
 
@@ -327,6 +330,7 @@ class Discriminator(nn.Module):
 def train_generator(dataX, dataY):
     # and discriminator
     device = Parameters.device
+    display_step = Parameters.display_step
     tapping_shape = dataX.shape[1:]
     generator_input_dim = Parameters.z_dim + Parameters.n_classes
     gen = Generator(generator_input_dim).to(device)
@@ -407,8 +411,8 @@ def train_generator(dataX, dataY):
 
             if cur_step % display_step == 0 and cur_step > 0:
                 print(f"Step {cur_step}: Generator loss: {mean_generator_loss}, discriminator loss: {mean_discriminator_loss}")
-                show_tensor_images(fake, size = fake.shape)
                 show_tensor_images(real, size = real.shape)
+                show_tensor_images(fake, size = fake.shape)
                 mean_generator_loss = 0
                 mean_discriminator_loss = 0
             cur_step += 1
