@@ -22,6 +22,10 @@ def get_values(measurement):
               measurement.gyro1z])
     return result
 
+def get_values_idx(measurement):
+    result  = np.array([measurement.gyro2x, measurement.gyro2y, measurement.gyro2z])
+    return result
+
 
 def get_values_scaled(measurement):
     gyro1x, gyro1y, gyro1z = measurement.gyro1x, measurement.gyro1y, measurement.gyro1z
@@ -393,3 +397,17 @@ def taps_single_auto_convolution(taps):
 def get_taps_rfft(taps):
     rfft_taps = Tap.taps_rfft(taps)
     return rfft_taps
+
+def normalize_signals(signals):
+    def normalize_one_signak(signal):
+        norm_sig = signal - np.min(signal)
+        norm_sig /= np.max(norm_sig)
+        norm_sig -= np.mean(norm_sig)
+        norm_sig *=2
+        return norm_sig
+
+    norm_sigs = [normalize_one_signak(s) for s in signals]
+    
+    return np.array(norm_sigs)
+    
+    

@@ -79,6 +79,8 @@ def get_signals(measurement, signal_type=None):
 
     if signal_type == 'signal_values':
         result = Extractor.get_values(measurement)
+    elif signal_type == 'signal_values_index_only':
+        result = Extractor.get_values_idx(measurement)
     elif signal_type == 'signal_spherical':
         result = Extractor.get_spherical(measurement)
 

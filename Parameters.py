@@ -4,6 +4,7 @@
 
 class SignalType:
     values = 'signal_values'  # vraca 6, po 3 (x, y, z) i sa palca i sa kaziprsta
+    values_idx = 'signal_values_index_only' # vraca 3, x,y,z samo sa kaziprsta
     spherical = 'signal_spherical'  # vraca 6, po 3 (r, fi, te) i sa palca i sa kaziprsta
     amplitude = 'signal_amplitude'  # vraca 2, intenzitet i sa palca i sa kaziprsta
     signed_amplitude = 'signal_signed_amplitude'  # vraca 2, oznaceni intenzitet i sa palca i sa kaziprsta
@@ -56,7 +57,7 @@ class AugmentationType: # erm...
     sliding_taps = 'sliding_taps'
 
 conversion_combinations = [
-    [SignalType.values, TapType.none, FunctionType.none, ConcatenationType.none]
+    [SignalType.values_idx, TapType.none, FunctionType.none, ConcatenationType.none]
 ]
 
 augmentationType = 'sliding_taps'  # TODO: popravi ovo, kako se koristi klasa? gde ide conversion_combinations
@@ -132,12 +133,12 @@ test_type = 'create_simple_tests'  # jedan pacijent se moze naci u samo u jednoj
 number_of_tests = 1  # koliko razlicitih odabiranja pacijenata da se koristi
 
 # Split into train, test, val sets
-train_percent = 0.85  # procenat za treniranje
-test_percent = 0.1  # procenat za testiranje
+train_percent = 0.9  # procenat za treniranje
+test_percent = 0.05  # procenat za testiranje
 # validation_percent = 0.1  # procenat za validaciju, ne koristi se
 
 start_time = 0  # pocetak signala koji se posmatra
-end_time = 10.235  # kraj signala koji se posmatra, nezavisno od toga koliko signal traje, ako je kraci onda dopuna nulama
+end_time = 6.715  # kraj signala koji se posmatra, nezavisno od toga koliko signal traje, ako je kraci onda dopuna nulama
 def_signal_val = 0  # vrednost za dopunu
 
 samples = round((end_time - start_time) * 200)  # koliko ima odabiraka u signalu
@@ -153,13 +154,13 @@ stretch_len = 400  # na koliko odbiraka da isteglji signal
 # GAN
 #=============================================================================
 # generator
-z_dim = 2048
+z_dim = 256
 n_classes = 4
-batch_size = 64
+batch_size = 256
 n_epochs = 600
 lr = 0.002
 device = 'cuda'
-display_step = 100
+display_step = 50
 # =============================================================================
 # MISCELLANEOUS
 # =============================================================================

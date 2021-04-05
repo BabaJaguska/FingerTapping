@@ -51,14 +51,20 @@ def show_tensor_images(image_tensor, num_images=25, size=(3, 32, 32), nrow=5, sh
     # plt.imshow(image_grid.permute(1, 2, 0))
     # plt.imshow(image_grid)
     
-    plt.subplot(3,1,1)
+    plt.subplot(5,1,1)
     plt.plot(image_unflat[1].T)
         
-    plt.subplot(3,1,2)
+    plt.subplot(5,1,2)
     plt.plot(image_unflat[10].T)
         
-    plt.subplot(3,1,3)
+    plt.subplot(5,1,3)
     plt.plot(image_unflat[-1].T)
+    
+    plt.subplot(5,1,4)
+    plt.plot(image_unflat[-10].T)
+    
+    plt.subplot(5,1,5)
+    plt.plot(image_unflat[25].T)
     
     if show:
         plt.show()
@@ -84,11 +90,6 @@ class DatasetTapping(Dataset):
     return _x, _y
 
 
-    
-    
-    
-
-
 
 #%%
 # #### Generator
@@ -108,20 +109,24 @@ class Generator(nn.Module):
         self.input_dim = input_dim
         # Build the neural network
         self.gen = nn.Sequential(
-            self.make_gen_block(input_dim, hidden_dim * 16, kernel_size = 5, stride = 2),
-            self.make_gen_block(hidden_dim * 16, hidden_dim * 8, kernel_size=5, stride=1),
+            self.make_gen_block(input_dim, hidden_dim * 16, kernel_size = 3, stride = 1),
+            self.make_gen_block(hidden_dim * 16, hidden_dim * 8, kernel_size=3, stride=1),
             self.make_gen_block(hidden_dim * 8, hidden_dim * 8, kernel_size=5, stride=1),
-            self.make_gen_block(hidden_dim * 8, hidden_dim * 4, kernel_size=5, stride = 2),
-            self.make_gen_block(hidden_dim * 4, hidden_dim * 4, kernel_size=5, stride = 2),
-            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=5, stride = 2),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=5, stride = 2),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=5, stride = 2),
-            self.make_gen_block(hidden_dim * 2, hidden_dim * 1, kernel_size=5, stride = 2),
-            self.make_gen_block(hidden_dim * 1, hidden_dim * 1, kernel_size=3, stride = 1),
+            self.make_gen_block(hidden_dim * 8, hidden_dim * 4, kernel_size=5, stride = 1, dropout = 1),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 4, kernel_size=7, stride = 1),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 4, kernel_size=7, stride=1),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=7, stride = 1),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=7, stride = 1, dropout = 1),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=7, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=7, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=7, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 2, kernel_size=7, stride = 2, dropout = 1),
+            # self.make_gen_block(hidden_dim * 2, hidden_dim * 1, kernel_size=10, stride = 2),
+            self.make_gen_block(hidden_dim * 2, hidden_dim * 1, kernel_size=5, stride = 1),
             self.make_gen_block(hidden_dim, im_chan, kernel_size=3, final_layer=True),
         )
 
-    def make_gen_block(self, input_channels, output_channels, kernel_size=3, stride=2, final_layer=False):
+    def make_gen_block(self, input_channels, output_channels, kernel_size=3, stride=2, dropout = 0, final_layer=False):
         '''
         Function to return a sequence of operations corresponding to a generator block of DCGAN;
         a transposed convolution, a batchnorm (except in the final layer), and an activation.
@@ -134,15 +139,25 @@ class Generator(nn.Module):
                       (affects activation and batchnorm)
         '''
         if not final_layer:
+            
+            if dropout:
+                return nn.Sequential(
+                    nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
+                    nn.BatchNorm1d(output_channels),
+                    nn.ReLU(inplace=True),
+                    nn.Dropout2d(0.1)
+
+                )
             return nn.Sequential(
                 nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
                 nn.BatchNorm1d(output_channels),
-                nn.ReLU(inplace=True),
+                nn.ReLU(inplace=True)
+
             )
         else:
             return nn.Sequential(
                 nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
-                # nn.Tanh(),
+                nn.Tanh(),
             )
 
     def forward(self, noise):
@@ -283,17 +298,21 @@ class Discriminator(nn.Module):
             6 za tapping default
       hidden_dim: the inner dimension, a scalar
     '''
-    def __init__(self, im_chan=6, hidden_dim=16):
+    def __init__(self, im_chan=6, hidden_dim=32):
         super(Discriminator, self).__init__()
         self.disc = nn.Sequential(
-            self.make_disc_block(im_chan, hidden_dim, stride=1),
-            self.make_disc_block(hidden_dim, hidden_dim * 2, kernel_size = 7),
-            self.make_disc_block(hidden_dim * 2, hidden_dim * 4, kernel_size = 5),
+            self.make_disc_block(im_chan, hidden_dim, stride=1, kernel_size = 3, depthwise = True),
+            self.make_disc_block(hidden_dim, hidden_dim * 2, kernel_size = 5),
+            self.make_disc_block(hidden_dim * 2, hidden_dim * 4, kernel_size = 3),
             self.make_disc_block(hidden_dim * 4, hidden_dim * 4),
-            self.make_disc_block(hidden_dim * 4, 1, final_layer=True), # a sta je ovo 1?  fake/real?
+            self.make_disc_block(hidden_dim * 4, hidden_dim * 4, kernel_size = 3),
+            self.make_disc_block(hidden_dim * 4, hidden_dim * 4),
+            self.make_disc_block(hidden_dim * 4, hidden_dim * 8),
+            # self.make_disc_block(hidden_dim * 8, hidden_dim * 8),
+            self.make_disc_block(hidden_dim * 8, 1, final_layer=True)
         )
 
-    def make_disc_block(self, input_channels, output_channels, kernel_size=4, stride=2, final_layer=False):
+    def make_disc_block(self, input_channels, output_channels, kernel_size=4, stride=2, depthwise = False, final_layer=False):
         '''
         Function to return a sequence of operations corresponding to a discriminator block of the DCGAN; 
         a convolution, a batchnorm (except in the final layer), and an activation (except in the final layer).
@@ -306,11 +325,22 @@ class Discriminator(nn.Module):
                       (affects activation and batchnorm)
         '''
         if not final_layer:
-            return nn.Sequential(
-                nn.Conv1d(input_channels, output_channels, kernel_size, stride),
-                nn.BatchNorm1d(output_channels),
-                nn.LeakyReLU(0.2, inplace=True),
-            )
+            if depthwise:
+                return nn.Sequential(
+                    nn.Conv1d(input_channels, input_channels, kernel_size, stride, groups = input_channels),
+                    nn.Conv1d(input_channels, output_channels, kernel_size = 1, stride = 1),
+                    nn.BatchNorm1d(output_channels),
+                    nn.LeakyReLU(0.2, inplace=True),
+                    # nn.MaxPool1d(kernel_size=2, stride=2),
+                    nn.Dropout(0.2)
+                )
+            else:
+                return nn.Sequential(
+                    nn.Conv1d(input_channels, output_channels, kernel_size, stride),
+                    nn.BatchNorm1d(output_channels),
+                    nn.LeakyReLU(0.2, inplace=True),
+                    nn.Dropout(0.2)
+                )
         else:
             return nn.Sequential(
                 nn.Conv1d(input_channels, output_channels, kernel_size, stride),
@@ -333,7 +363,7 @@ def train_generator(dataX, dataY):
     display_step = Parameters.display_step
     tapping_shape = dataX.shape[1:]
     generator_input_dim = Parameters.z_dim + Parameters.n_classes
-    gen = Generator(generator_input_dim).to(device)
+    gen = Generator(generator_input_dim, im_chan = tapping_shape[0]).to(device)
     gen_opt = torch.optim.Adam(gen.parameters(), lr=Parameters.lr)
     discriminator_input_dim = tapping_shape[0] + n_classes
     disc = Discriminator(discriminator_input_dim).to(device)
@@ -354,7 +384,12 @@ def train_generator(dataX, dataY):
     mean_generator_loss = 0
     mean_discriminator_loss = 0
     
-    dataloader = DataLoader(DatasetTapping(dataX, dataY), batch_size = Parameters.batch_size)
+    dataloader = DataLoader(DatasetTapping(dataX, dataY),
+                            batch_size = Parameters.batch_size,
+                            shuffle = True)
+    all_gen_losses = []
+    all_disc_losses = []
+    
     print('Training...')
     for epoch in range(Parameters.n_epochs):
         # Dataloader returns the batches and the labels  
@@ -385,14 +420,17 @@ def train_generator(dataX, dataY):
             disc_fake_pred = disc(fake_image_and_labels)
             disc_real_pred = disc(real_image_and_labels)
 
-            disc_fake_loss = criterion(disc_fake_pred, torch.zeros_like(disc_fake_pred))
-            disc_real_loss = criterion(disc_real_pred, torch.ones_like(disc_real_pred))
+            disc_fake_loss = criterion(disc_fake_pred, torch.zeros_like(disc_fake_pred) + (0.3 * torch.rand(1).item()))
+            disc_real_loss = criterion(disc_real_pred, torch.ones_like(disc_real_pred) * (0.3 * torch.rand(1).item() + 0.7))
             disc_loss = (disc_fake_loss + disc_real_loss) / 2
             disc_loss.backward(retain_graph=True)
             disc_opt.step() 
 
             # Keep track of the average discriminator loss
             mean_discriminator_loss += disc_loss.item() / display_step
+            
+            
+            ##################
 
             ### Update generator ###
             # Zero out the generator gradients
@@ -405,9 +443,32 @@ def train_generator(dataX, dataY):
             gen_loss = criterion(disc_fake_pred, torch.ones_like(disc_fake_pred))
             gen_loss.backward()
             gen_opt.step()
+            
+            
+        ################## jos jedan korak za generator mozda???? #####
+        
+            # gen_opt.zero_grad()
+        
+            # fake_noise = get_noise(cur_batch_size, Parameters.z_dim, device=Parameters.device)
+        
+            # # Combine the vectors of the noise and the one-hot labels for the generator
+            # noise_and_labels = combine_vectors(fake_noise, one_hot_labels) # pazi one hot labels, not image one hot labels
+            # fake = gen(noise_and_labels)
+            # fake_image_and_labels = combine_vectors(fake, image_one_hot_labels)
+            # disc_fake_pred = disc(fake_image_and_labels)
+            # gen_loss = criterion(disc_fake_pred, torch.ones_like(disc_fake_pred))
+            # gen_loss.backward()
+            # gen_opt.step()
+            
+            
+        ####
+        
+        
 
             # Keep track of the average generator loss
             mean_generator_loss += gen_loss.item() / display_step
+            all_gen_losses.append(gen_loss.item())
+            all_disc_losses.append(disc_loss.item())
 
             if cur_step % display_step == 0 and cur_step > 0:
                 print(f"Step {cur_step}: Generator loss: {mean_generator_loss}, discriminator loss: {mean_discriminator_loss}")
@@ -416,7 +477,12 @@ def train_generator(dataX, dataY):
                 mean_generator_loss = 0
                 mean_discriminator_loss = 0
             cur_step += 1
-            
+    
+    
+    plt.plot(all_disc_losses)
+    plt.plot(all_gen_losses)
+    plt.legend(('disc loss', 'gen loss'))
+    plt.show()
             
     return gen, disc
             
@@ -539,11 +605,6 @@ def train_classifier(dataTrain, dataVal):
 # 
 # </details>
 
-# In[10]:
-
-
-# UNQ_C1 (UNIQUE CELL IDENTIFIER, DO NOT EDIT)
-# GRADED FUNCTION: combine_sample
 def combine_sample(real, fake, p_real):
     '''
     Function to take a set of real and fake images of the same length (x)
@@ -561,10 +622,8 @@ def combine_sample(real, fake, p_real):
     #### END CODE HERE ####
     return target_images
 
-
-# In[11]:
-
-    # unit testic
+#%%
+# unit testic
 
 n_test_samples = 9999
 test_combination = combine_sample(
@@ -648,6 +707,20 @@ def find_optimal():
     
     #### END CODE HERE ####
     return best_p_real, best_gen_name
+
+def generate_batch_of_fakes(gen, one_hot_labels, batch_size):  
+    
+    fake_noise = get_noise(batch_size, Parameters.z_dim, device=Parameters.device)
+    one_hot_labels = one_hot_labels.to(Parameters.device).float()
+    # Combine the vectors of the noise and the one-hot labels for the generator
+    noise_and_labels = combine_vectors(fake_noise, one_hot_labels)
+    
+    batch_of_fakes = gen(noise_and_labels)
+    
+    return batch_of_fakes
+    
+
+
 
 def augmented_train(p_real, gen_name):
     gen = Generator(generator_input_dim).to(device)
