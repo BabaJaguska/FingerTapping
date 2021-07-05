@@ -1,6 +1,7 @@
 import Parameters
 import Signal
-from ml import ArtefactExtractor, ArtefactSelectorGenerator, ArtefactEvaluatorGenerator, ArtefactEvaluator, \
+import ArtefactExtractor, ArtefactSelectorGenerator, \
+    ArtefactEvaluatorGenerator, ArtefactEvaluator, \
     ArtefactTestGenerator, ArtefactFilter, ArtefactNormalisator
 
 

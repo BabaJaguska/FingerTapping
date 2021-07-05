@@ -148,10 +148,12 @@ def generic_wobbling_signal_info(signals, use_taps, time_tap, function, prefix):
         taps2.append(tap)
 
     angles, areas = calc_max_wobbling(taps2)
-    angle_min_val, angle_max_val, angle_agv_val, angle_rms_val, angle_crest_val, angle_std_val, angle_papr_val = standard_info(
-        angles)
-    area_min_val, area_max_val, area_agv_val, area_rms_val, area_crest_val, area_std_val, area_papr_val = standard_info(
-        areas)
+    
+    angle_min_val, angle_max_val, angle_agv_val, angle_rms_val, \
+    angle_crest_val, angle_std_val, angle_papr_val = standard_info(angles)
+    
+    area_min_val, area_max_val, area_agv_val, area_rms_val,\
+    area_crest_val, area_std_val, area_papr_val = standard_info(areas)
 
     result = (
         ExtractionInfo(prefix + '_wangle_avg', angle_agv_val), ExtractionInfo(prefix + '_wangle_rms', angle_rms_val),
