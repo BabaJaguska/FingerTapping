@@ -39,8 +39,8 @@ def main():
 
     for i in tqdm(range(100)):
         for diagnosis in Diagnosis.get_diagnosis_names():
-            train_data, test_data, validation_data = TestGenerator.extract_test(measurements, diagnosis,
-                                                                                train_percent, test_percent)
+            train_data, test_data, validation_data = TestGenerator.extract_test_1(measurements, diagnosis,
+                                                                                  train_percent, test_percent)
             result = validate(train_data, test_data, validation_data)
             if result: print('not ok')
 

@@ -15,7 +15,7 @@ def main():
     signals = Signal.load_all(Parameters.default_root_path)
 
     for signal in tqdm(signals):
-        observed_signal = signal.gyro2VecSign
+        observed_signal = signal.gyro2Vec
 
         taps = Tap.get_signal_taps(signal, observed_signal)
 
@@ -77,7 +77,7 @@ def main():
                 taps_diff = Tap.taps_diff(taps)
                 taps_diff_convolution_avg = Extractor.get_taps_convolution_avg(taps_diff)
 
-                plot_signal = taps_diff_convolution_avg
+                plot_signal = taps_integral
 
                 plot_taps(plot_signal, signal, plot_all=False)
             except:
