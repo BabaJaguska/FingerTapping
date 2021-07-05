@@ -60,7 +60,7 @@ class Signal:
         # other
         self.sampling_rate = s_rate  # sampling rate [Hz]
         self.tap_task = tap_task  # LHEO/LHEC/RHEO/RHEC (left or right hand/eyes open or closed)
-        self.time = time[start_index:end_index]  # time
+        self.time = time  # time
         self.time_tap = time_tap  # list of taps start/end time
         self.ttap_start = ttap_start + 0.3 if not shift_time else 0  # single value, when the actual signal started SECONDS
         self.ttap_stop = ttap_stop - 0.3 if not shift_time else len(
@@ -70,7 +70,6 @@ class Signal:
         self.date = date  # date of recording
         self.time_of_measurement = time_of_measurement  # what time that date
         self.length = len(gyro1x)
-        self.id = self.initials + '_' + self.date + '_' + self.diagnosis
 
     def plot_signal(self, tmin, tmax):
         # gyro1
@@ -146,6 +145,14 @@ class Signal:
         r2, phi2, theta2 = transpher(x2, y2, z2)
 
         return r1, phi1, theta1, r2, phi2, theta2
+
+    def copy(self):
+        result = Signal(self.file, self.fsr.copy(), self.gyro1x.copy(), self.gyro1y.copy(), self.gyro1z.copy(),
+                        self.gyro2x.copy(), self.gyro2y.copy(), self.gyro2z.copy(), self.spectrogram_t.copy(),
+                        self.spectrogram_i.copy(), self.tap_task, self.time, self.time_tap.copy(), self.ttap_start,
+                        self.ttap_stop, self.diagnosis, self.initials, self.date, self.time_of_measurement, False)
+
+        return result
 
     def __str__(self):
         temp = self.get_signal_info()

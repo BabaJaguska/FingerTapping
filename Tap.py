@@ -354,9 +354,7 @@ def crop_val_taps(taps, min_val, max_val):  # TODO da li radi?
     return result
 
 
-def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps,
-                        augmentation_type = Parameters.augmentationType,
-                        tap_stride = Parameters.tap_stride):
+def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps):
     '''
     Concatenates taps in the third dimension
     Suitable for time distributed models
@@ -377,31 +375,11 @@ def concatenate_taps_3D(taps, max_num_taps=Parameters.max_taps,
         return []
 
     result = np.array(taps)
-    if result.shape[0] < max_num_taps:
-        results = []
-        temp = np.zeros([max_num_taps - result.shape[0], result.shape[1], result.shape[2]])
-        temp_result = np.concatenate([result, temp])
-        results.append(temp_result)
-        
+    if result.shape[0] >= max_num_taps:
+        result = result[0: max_num_taps, :, :]
     else:
-        if augmentation_type == 'none':
-            results = result[0: max_num_taps, :, :]
-            # result = np.swapaxes(result, 1,-1)
-        elif augmentation_type == 'sliding_taps':
-            
-            n_signals = int((result.shape[0] - max_num_taps)/tap_stride) + 1
-            
-            results = []
-            for i in range(n_signals):
-                start_idx = i * tap_stride 
-                end_idx = i * tap_stride + max_num_taps
-                temp_result = result[start_idx:end_idx, :, :]
-                results.append(temp_result)
-                
-            #results = np.array(results)
-                
-            
-          
-       
+        temp = np.zeros([max_num_taps - result.shape[0], result.shape[1], result.shape[2]])
+        result = np.concatenate([result, temp])
+    # result = np.swapaxes(result, 1,-1)
 
-    return results
+    return result
