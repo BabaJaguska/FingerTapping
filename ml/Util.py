@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import butter, filtfilt
 
 
 def calc_integral(data):
@@ -29,6 +30,18 @@ def calc_no_drift_integral(data):
     drift = calc_linear_drift(integral)
 
     result = integral - drift
+    return result
+
+
+def calc_no_drift_integral_filter(data):
+    integral = calc_integral(data)
+    lowcut = 0.4
+    highcut = 50
+    nf = 200 #[Hz]
+    order = 4
+    low, high = lowcut/nf, highcut/nf
+    b, a = butter(order, [low, high], btype = 'band')
+    result = filtfilt(b, a, integral, method = 'gust')
     return result
 
 

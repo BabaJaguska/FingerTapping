@@ -165,7 +165,7 @@ def getUniquePatients(root):
     
     return allPatientFolders, allPatientDiagnoses
 
-def readAllDataAndAutoSplit(dataPath):
+def readAllDataAndAutoSplit(dataPath, integrateFirst, filename):
     
     print('Reading all relevant data. Auto-splitting taps...\n')     
   
@@ -179,14 +179,14 @@ def readAllDataAndAutoSplit(dataPath):
                 continue
             
             temp = {}
-            intermediate_signal, peak_indices = mes.findTapSplits()
+            intermediate_signal, peak_indices = mes.findTapSplits(integrateFirst)
             temp['intermediate_signal'] = intermediate_signal
             temp['peak_indices'] = peak_indices
             temp['measurement'] = mes
             allData.append(temp)
     return allData
 
-def readAllDataAndSplitFromTxt(dataPath, txtfile):
+def readAllDataAndSplitFromTxt(dataPath, txtfile, integrateFirst):
     print('Reading all relevant data. Reading split points from file...\n')     
   
     allData = []
@@ -210,7 +210,7 @@ def readAllDataAndSplitFromTxt(dataPath, txtfile):
                 continue
             k += 1
             temp = {}
-            intermediate_signal, _ = mes.findTapSplits()
+            intermediate_signal, _ = mes.findTapSplits(integrateFirst)
             temp['intermediate_signal'] = intermediate_signal
             temp['peak_indices'] = splitDicts[k]['allSplitPoints']
             temp['measurement'] = mes

@@ -5,13 +5,14 @@ Created on Sat Sep  5 16:05:51 2020
 @author: minja
 """
 
-from measurement import measurement
-from readAndEncode import *
-from time import sleep
+from readAndEncode import readAllDataAndAutoSplit, readAllDataAndSplitFromTxt
 import argparse
 import matplotlib
 from threading import Thread
 import json
+import numpy as np
+import os
+from matplotlib import pyplot as plt
 matplotlib.use('Qt5Agg')
 
 
@@ -95,7 +96,9 @@ class dataPlotter:
         self.ax[1].plot(mes.gyro2xT)
         #self.ax[1].plot(mes.gyro2xT)
         #self.ax[1].plot(mes.gyro2xT)
-        markerline, stemline, baseline = self.ax[1].stem(peak_indices, [10]*len(peak_indices), ':' ,use_line_collection = True)
+        markerline, stemline, baseline = self.ax[1].stem(peak_indices, 
+                                                         [10]*len(peak_indices),
+                                                         ':' ,use_line_collection = True)
         plt.setp(markerline, markersize = 1)
         plt.title(fname)
         
@@ -155,32 +158,129 @@ class dataPlotter:
         return
 
 
-   
+def addPoints(arr, points):
+    points = [point for point in points if point not in arr]
+    arr = np.append(arr, points)    
+    arr = np.sort(arr)
+    return arr
 
+def removePoints(arr, roughPoints):
+    
+    def closest(arr, point):
+        
+        if point in arr:
+            return np.where(arr == point)
+        
+        for pointCandidate in range(point - 3, point + 3):
+            if pointCandidate in arr:
+                return np.where(arr == pointCandidate)
+            
+        print('POINT {} NOT FOUND.'.format(point))
+        
+        return -1
+    
+    point_indices = [closest(arr, point) for point in roughPoints]     
+    
+    arr = np.delete(arr, point_indices)  
+    
+    return arr
 
+def modifySignalSplits(splitPoints, modifyDict):
+    
+    if modifyDict['add']:    
+        splitPoints = addPoints(splitPoints, modifyDict['add'])
+        
+    if modifyDict['sub']:
+        splitPoints = removePoints(splitPoints, modifyDict['sub'])
+    
+    return splitPoints
+
+        
+def findMeasurementByID(data, ID):
+    
+    for idx, datum in enumerate(data):
+        if datum['measurement'].id == ID:
+            return datum, idx
+        
+    print('COULD NOT FIND MEASUREMENT')
+    return
+
+def writeAllSignalSplitsToFile(data, filename):
+    
+    if os.path.exists(filename):
+        print('REWRITING FILE !!!')           
+    
+    with open(filename, 'w+') as f:
+        for datum in data:
+            temp = {'id': datum['measurement'].id,
+                    'allSplitPoints': datum['peak_indices'].tolist()}
+            print(json.dumps(temp), file = f)
+
+            
+    return
+
+def modifyAutoSplits(allData, modifierFile, fileToWrite):
+    modifiers = []
+    try:
+        with open(modifierFile, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                modifyFile = json.loads(line)
+                modifiers.append(modifyFile)
+    except:
+        print('Could not read the requested file.')
+    
+    # print(modifiers)
+    
+    # ========= MODIFY SPLIT POINTS ========
+    for modifierDict in modifiers:
+        print('Modifying ', modifierDict['id'])
+        tempDatum, idx = findMeasurementByID(allData, modifierDict['id'])
+        print(idx)
+        tempSplits = tempDatum['peak_indices']
+        allData[idx]['peak_indices'] = modifySignalSplits(tempSplits, modifierDict)
+        
+    
+    writeAllSignalSplitsToFile(allData, fileToWrite)
+
+    return 
         
 #%%
 
+#TODO: prvo se pojavi prazan plot, mora da se klikne 'n' kao next, popravi ovo!
+
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description = 'Correct automatically determined tap boundaries')
-    arg_parser.add_argument('-d', '--dataPath')
-    arg_parser.add_argument('-m', '--method')
+    arg_parser.add_argument('-d', '--dataPath', help = 'Your recordings path')
+    arg_parser.add_argument('-m', '--method', help = 'Auto or file')
+    arg_parser.add_argument('-f','--file', help = 'Which file to read or write')
     args = arg_parser.parse_args()
     
     dataPath = args.dataPath
     splitMethod = args.method
+    filename = args.file
     
     if dataPath is None:
         # dataPath = r'C:\data\icef\tapping\raw data'
         dataPath = './data/raw data1/'
         
+    if splitMethod is None:
+        splitMethod = 'auto'
+        
     # ======= READ DATA =======
     if splitMethod == 'auto':
-        allData = readAllDataAndAutoSplit(dataPath)
+        integrateFirst = 1
+        print('===========================================================')
+        print('Press N to continue to next plot')
+        print('Press M to modify the points')
+        print('Press X to stop editing')
+        print('Press Q to quit')
+        print('===========================================================')
+        allData = readAllDataAndAutoSplit(dataPath, integrateFirst, filename)
         
     elif splitMethod == 'file':
-        txtfile = 'allSplits.txt'  # TO DO: stavi ovo kao parametar
-        allData = readAllDataAndSplitFromTxt(dataPath, txtfile)
+        
+        allData = readAllDataAndSplitFromTxt(dataPath, filename, integrateFirst)
     else:
         raise('Invalid split method. Choose between "auto" and "file"')            
                    

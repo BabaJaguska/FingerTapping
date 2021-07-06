@@ -3,7 +3,7 @@ from math import sqrt
 import numpy as np
 
 from Artefact import Artefact
-from Util import calc_no_drift_integral, calc_diff
+from Util import calc_no_drift_integral_filter, calc_diff
 
 
 def extract(measurements):
@@ -107,9 +107,12 @@ def generic_signal_info(signals, use_taps, time_tap, function, prefix):
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
 
     result = (
-        ExtractionInfo(prefix + '_min', min_val), ExtractionInfo(prefix + '_max', max_val),
-        ExtractionInfo(prefix + '_avg', avg_val), ExtractionInfo(prefix + '_rms', rms_val),
-        ExtractionInfo(prefix + '_crest', crest_val), ExtractionInfo(prefix + '_std', std_val),
+        ExtractionInfo(prefix + '_min', min_val), 
+        ExtractionInfo(prefix + '_max', max_val),
+        ExtractionInfo(prefix + '_avg', avg_val), 
+        ExtractionInfo(prefix + '_rms', rms_val),
+        ExtractionInfo(prefix + '_crest', crest_val),
+        ExtractionInfo(prefix + '_std', std_val),
         ExtractionInfo(prefix + '_parp', parp_val))
     return result
 
@@ -129,9 +132,12 @@ def generic_taps_signal_info(signals, use_taps, time_tap, function, prefix):
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
 
     result = (
-        ExtractionInfo('max_' + prefix + '_min', min_val), ExtractionInfo('max_' + prefix + '_max', max_val),
-        ExtractionInfo('max_' + prefix + '_avg', avg_val), ExtractionInfo('max_' + prefix + '_rms', rms_val),
-        ExtractionInfo('max_' + prefix + '_crest', crest_val), ExtractionInfo('max_' + prefix + '_std', std_val),
+        ExtractionInfo('max_' + prefix + '_min', min_val),
+        ExtractionInfo('max_' + prefix + '_max', max_val),
+        ExtractionInfo('max_' + prefix + '_avg', avg_val), 
+        ExtractionInfo('max_' + prefix + '_rms', rms_val),
+        ExtractionInfo('max_' + prefix + '_crest', crest_val),
+        ExtractionInfo('max_' + prefix + '_std', std_val),
         ExtractionInfo('max_' + prefix + '_parp', parp_val))
     return result
 
@@ -194,8 +200,9 @@ def specter_info(signals, use_taps, time_tap):
     else:
         val = signals
 
-    dc_value, delta_frequency, frequency_ratio, frequency_ratio1, max_frequency, max_val, median_frequency, median_frequency1, median_frequency2, median_pow = standard_specter_info(
-        val, time_tap)
+    dc_value, delta_frequency, frequency_ratio, frequency_ratio1,\
+        max_frequency, max_val, median_frequency, median_frequency1,\
+            median_frequency2, median_pow = standard_specter_info(val, time_tap)
 
     result = (
         ExtractionInfo('max_val', max_val), ExtractionInfo('max_frequency', max_frequency),
@@ -215,8 +222,9 @@ def specter_info2(signals, use_taps, time_tap):
 
     val = []
     for tap in taps:
-        dc_value, delta_frequency, frequency_ratio, frequency_ratio1, max_frequency, max_val, median_frequency, median_frequency1, median_frequency2, median_pow = standard_specter_info(
-            tap, time_tap)
+        dc_value, delta_frequency, frequency_ratio, frequency_ratio1,\
+            max_frequency, max_val, median_frequency, median_frequency1, \
+                median_frequency2, median_pow = standard_specter_info(tap, time_tap)
         val.append(median_frequency)
 
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
@@ -240,11 +248,13 @@ def standard_specter_info(val, time_tap):
     delta_frequency = (median_frequency - max_frequency) / median_frequency if median_frequency > 0 else 0
     num_taps = len(time_tap)
     taps_len = len(val)
-    calc_frequency = num_taps / taps_len
-    frequency_ratio = median_frequency / calc_frequency
-    frequency_ratio1 = max_frequency / calc_frequency
+    cadence = num_taps / taps_len
+    frequency_ratio = median_frequency / cadence
+    frequency_ratio1 = max_frequency / cadence
     median_frequency1, median_frequency2, median_pow1 = calc_median_frequency2(val)
-    return dc_value, delta_frequency, frequency_ratio, frequency_ratio1, max_frequency, max_val, median_frequency, median_frequency1, median_frequency2, median_pow
+    return dc_value, delta_frequency, frequency_ratio, frequency_ratio1,\
+        max_frequency, max_val, median_frequency, median_frequency1, \
+            median_frequency2, median_pow
 
 
 def calc_median_frequency(data):
@@ -364,13 +374,18 @@ functions1 = [speed_info, acc_info, angle_info2, power_info, taps_info, specter_
 functions2 = [speed_info2, acc_info2, angle_info2, power_info2, taps_info, specter_info2]
 functions3 = [speed_info3, acc_info3, angle_info3, power_info3, taps_info, specter_info]
 
-functions1_2 = [speed_info, acc_info, angle_info, power_info, taps_info, specter_info, speed_info2, acc_info2,
+functions1_2 = [speed_info, acc_info, angle_info, power_info,
+                taps_info, specter_info, speed_info2, acc_info2,
                 angle_info2, power_info2, specter_info2]
 
-functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info, specter_info, speed_info2, acc_info2,
-                  angle_info2, power_info2, specter_info2, speed_info3, acc_info3, angle_info3, power_info3]
+functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info, 
+                  specter_info, speed_info2, acc_info2,
+                  angle_info2, power_info2, specter_info2, 
+                  speed_info3, acc_info3, angle_info3, power_info3]
 
-functions = functions1_2
+functionsTest = [angle_info, angle_info2, angle_info3]
+
+functions = functionsTest #functions1_2
 
 
 def get1x(measurement):
@@ -429,7 +444,7 @@ def diff(val):
 
 
 def integral(val):
-    return calc_no_drift_integral(val)
+    return calc_no_drift_integral_filter(val)
 
 
 def pow2(val):

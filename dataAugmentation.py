@@ -419,10 +419,10 @@ def get_gradient(crit, real, fake, epsilon):
         # Note: You need to take the gradient of outputs with respect to inputs.
         # This documentation may be useful, but it should not be necessary:
         # https://pytorch.org/docs/stable/autograd.html#torch.autograd.grad
-        #### START CODE HERE ####
+
         inputs=mixed_images,
         outputs=mixed_scores,
-        #### END CODE HERE ####
+
         # These other parameters have to do with the pytorch autograd engine works
         grad_outputs=torch.ones_like(mixed_scores), 
         create_graph=True,
@@ -447,9 +447,7 @@ def gradient_penalty(gradient):
     gradient_norm = gradient.norm(2, dim=1)
     
     # Penalize the mean squared distance of the gradient norms from 1
-    #### START CODE HERE ####
     penalty = torch.mean((gradient_norm - 1)**2)
-    #### END CODE HERE ####
     return penalty
 
 def get_gen_loss(crit_fake_pred):
@@ -460,9 +458,9 @@ def get_gen_loss(crit_fake_pred):
     Returns:
         gen_loss: a scalar loss value for the current batch of the generator
     '''
-    #### START CODE HERE ####
+
     gen_loss = -1. * torch.mean(crit_fake_pred)
-    #### END CODE HERE ####
+
     return gen_loss
 
 def get_crit_loss(crit_fake_pred, crit_real_pred, gp, c_lambda):
@@ -477,9 +475,9 @@ def get_crit_loss(crit_fake_pred, crit_real_pred, gp, c_lambda):
     Returns:
         crit_loss: a scalar for the critic's loss, accounting for the relevant factors
     '''
-    #### START CODE HERE ####
+
     crit_loss = torch.mean(crit_fake_pred) - torch.mean(crit_real_pred) + c_lambda * gp
-    #### END CODE HERE ####
+
     return crit_loss
     
 
@@ -753,12 +751,12 @@ def combine_sample(real, fake, p_real):
         fake: a tensor of fake images, length (x)
         p_real: the probability the images are sampled from the real set
     '''
-    #### START CODE HERE ####
+
     mask = torch.rand(len(real)) > p_real
     cloneImages = real.clone()
     cloneImages[mask] = fake[mask]
     target_images = cloneImages
-    #### END CODE HERE ####
+
     return target_images
 
 #%%
@@ -837,14 +835,14 @@ def find_optimal():
         "gen_4.pt"
     ]
 
-    #### START CODE HERE #### 
+
     best_p_real, best_gen_name = None, None
     
     # hard coded:  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!
     best_p_real = 0.6
     best_gen_name= gen_names[3]
     
-    #### END CODE HERE ####
+
     return best_p_real, best_gen_name
 
 def generate_batch_of_fakes(gen, one_hot_labels, batch_size):  

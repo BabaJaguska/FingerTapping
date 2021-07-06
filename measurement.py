@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt, find_peaks
 # %matplotlib qt <-- for drawing in a separate window; to cancel use %matplotlib inline
+from Util import calc_integral
 
 
 class measurement:
@@ -383,7 +384,7 @@ class measurement:
                 
         return maxAxis, maxAxisVal, maxAxisName
     
-    def findTapSplits(self, method = 'PanTompkins'):
+    def findTapSplits(self, integrateFirst = 0, method = 'PanTompkins'):
         
         
         if method == 'PanTompkins':
@@ -391,6 +392,9 @@ class measurement:
             ref,_,_ = self.mostProminentAxis()
             
             ref = ref - np.mean(ref)
+            
+            if integrateFirst:
+                ref = calc_integral(ref)
             
             # bandpass filter
             lowcut = 0.4

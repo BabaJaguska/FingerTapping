@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import butter, filtfilt
 
 
 def calc_integral(data):
@@ -29,6 +30,22 @@ def calc_no_drift_integral(data):
     drift = calc_linear_drift(integral)
 
     result = integral - drift
+    return result
+
+def calc_no_drift_integral_filter(data):
+    integral = calc_integral(data)
+    
+    # bandpass filter
+    lowcut = 0.1
+    highcut = 50
+    filter_order = 4
+    
+    nyquist_freq = 0.5 * 200 #JE L MI 200HZ sampling?
+    low = lowcut / nyquist_freq
+    high = highcut / nyquist_freq
+    b, a = butter(filter_order, [low, high], btype="band")
+    result = filtfilt(b, a, integral, method = 'gust')
+        
     return result
 
 
