@@ -94,6 +94,8 @@ class dataPlotter:
         #self.ax[1].plot(mes.gyro1yT)
         #self.ax[1].plot(mes.gyro1zT)
         self.ax[1].plot(mes.gyro2xT)
+        self.ax[0].plot(mes.fsrT, 'g-.', linewidth = 1)
+        # self.ax[1].plot(mes.fsrT)
         #self.ax[1].plot(mes.gyro2xT)
         #self.ax[1].plot(mes.gyro2xT)
         markerline, stemline, baseline = self.ax[1].stem(peak_indices, 
@@ -101,6 +103,7 @@ class dataPlotter:
                                                          ':' ,use_line_collection = True)
         plt.setp(markerline, markersize = 1)
         plt.title(fname)
+
         
         
     def draw(self):
@@ -108,7 +111,7 @@ class dataPlotter:
         self.fig.canvas.flush_events()
         
     @threaded
-    def getUserInput(self):
+    def getUserInput(self, modifierFile = 'ModifyPoints.txt'):
         
         measurementID = self.data[self.mes_idx]['measurement'].id
         print(measurementID)
@@ -151,7 +154,7 @@ class dataPlotter:
                     "add":pointsToAdd,
                     "sub": pointsToSubtract}
         
-        with open('./ModifyPoints.txt', 'a') as f:
+        with open(modifierFile, 'a') as f:
             print(json.dumps(modifier),file = f)
                 
         
@@ -169,17 +172,19 @@ def removePoints(arr, roughPoints):
     def closest(arr, point):
         
         if point in arr:
-            return np.where(arr == point)
+            temp = np.where(arr == point)
+            return temp[0]
         
-        for pointCandidate in range(point - 3, point + 3):
+        for pointCandidate in range(point - 10, point + 10):
             if pointCandidate in arr:
-                return np.where(arr == pointCandidate)
+                temp = np.where(arr == pointCandidate)
+                return temp[0]
             
         print('POINT {} NOT FOUND.'.format(point))
         
         return -1
     
-    point_indices = [closest(arr, point) for point in roughPoints]     
+    point_indices = [closest(arr, point) for point in roughPoints if closest(arr, point) >-1]     
     
     arr = np.delete(arr, point_indices)  
     
@@ -213,7 +218,11 @@ def writeAllSignalSplitsToFile(data, filename):
     with open(filename, 'w+') as f:
         for datum in data:
             temp = {'id': datum['measurement'].id,
-                    'allSplitPoints': datum['peak_indices'].tolist()}
+                    'allSplitPoints': datum['peak_indices']}
+            
+            if not isinstance(temp['allSplitPoints'], list):
+                temp['allSplitPoints'] = temp['allSplitPoints'].tolist()
+                
             print(json.dumps(temp), file = f)
 
             
@@ -252,8 +261,8 @@ def modifyAutoSplits(allData, modifierFile, fileToWrite):
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description = 'Correct automatically determined tap boundaries')
     arg_parser.add_argument('-d', '--dataPath', help = 'Your recordings path')
-    arg_parser.add_argument('-m', '--method', help = 'Auto or file')
-    arg_parser.add_argument('-f','--file', help = 'Which file to read or write')
+    arg_parser.add_argument('-m', '--method', type = str, help = 'Auto or file')
+    arg_parser.add_argument('-f','--file', type = str, help = 'Which file to read or write')
     args = arg_parser.parse_args()
     
     dataPath = args.dataPath
@@ -267,19 +276,24 @@ if __name__ == '__main__':
     if splitMethod is None:
         splitMethod = 'auto'
         
+    fileToWrite = 'integralSplits.txt'
+    modifierFile = 'ModifyPoints.txt'     
+        
     # ======= READ DATA =======
+    integrateFirst = 1
     if splitMethod == 'auto':
-        integrateFirst = 1
+        
         print('===========================================================')
         print('Press N to continue to next plot')
         print('Press M to modify the points')
         print('Press X to stop editing')
         print('Press Q to quit')
         print('===========================================================')
-        allData = readAllDataAndAutoSplit(dataPath, integrateFirst, filename)
+        allData = readAllDataAndAutoSplit(dataPath, integrateFirst)
         
     elif splitMethod == 'file':
-        
+        if filename is None:
+            filename = 'allSplits.txt'
         allData = readAllDataAndSplitFromTxt(dataPath, filename, integrateFirst)
     else:
         raise('Invalid split method. Choose between "auto" and "file"')            
@@ -287,4 +301,8 @@ if __name__ == '__main__':
     # ======= PLOT =======
     gui = dataPlotter()       
     gui.beginPlotting(allData) 
+    
+    # save
+
+    modifyAutoSplits(allData, modifierFile, fileToWrite)
     

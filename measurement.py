@@ -112,6 +112,7 @@ class measurement:
         self.gyro2xT = self.gyro2x[int(self.ttapstart*self.fs):int(self.ttapstop*self.fs)]
         self.gyro2yT = self.gyro2y[int(self.ttapstart*self.fs):int(self.ttapstop*self.fs)]
         self.gyro2zT = self.gyro2z[int(self.ttapstart*self.fs):int(self.ttapstop*self.fs)]
+        self.fsrT = self.fsr[int(self.ttapstart*self.fs):int(self.ttapstop*self.fs)]
         
     def packAndCrop(self, seconds):
         
@@ -389,6 +390,17 @@ class measurement:
         
         if method == 'PanTompkins':
             
+            if self.id == 'MSA_DJV_12.07.2013_09.45.00':
+                left, right = 0, 2300
+                self.gyro1xT = self.gyro1x[left:right]
+                self.gyro1yT = self.gyro1y[left:right]
+                self.gyro1zT = self.gyro1z[left:right]               
+                self.gyro2xT = self.gyro2x[left:right]    
+                self.gyro2yT = self.gyro2y[left:right]    
+                self.gyro2zT = self.gyro2z[left:right]   
+                self.fsrT = self.fsrT[left:right]
+  
+            
             ref,_,_ = self.mostProminentAxis()
             
             ref = ref - np.mean(ref)
@@ -399,7 +411,7 @@ class measurement:
             # bandpass filter
             lowcut = 0.4
             highcut = 5
-            filter_order = 2
+            filter_order = 4
             
             
             nyquist_freq = 0.5 * self.fs
@@ -408,6 +420,8 @@ class measurement:
             b, a = butter(filter_order, [low, high], btype="band")
             ref = filtfilt(b, a, ref, method = 'gust')
             
+            # ref = smooth(ref, 30)
+            
             # accentuate peaks
             ref = np.power(ref, 2) * np.sign(ref)
             
@@ -415,13 +429,9 @@ class measurement:
             # find peaks (minima)
             peak_indices, peak_params = find_peaks(-ref, 
                                          prominence = 1) # flip signal
+            peak_indices = cleanPeaks(peak_indices, peak_params)
             
-            q75peak = np.quantile(peak_params['prominences'], 0.75)
             
-            
-            # remove too small peaks
-            remove_idx = [i for i, idx in enumerate(peak_indices) if peak_params['prominences'][i] < q75peak/5 ]
-            peak_indices = np.delete(peak_indices, remove_idx)
 
             
         return ref, peak_indices
@@ -447,7 +457,44 @@ class measurement:
         return 0
         
             
-
+def smooth(signal, win_len):
+    win = np.ones(win_len)/win_len
+    smoothed = np.convolve(signal, win, mode = 'same')
+    return smoothed
         
+def cleanPeaks(peak_indices, peak_params):
+    # remove peaks that are too small based on a dynamic threshold
+
+    lastPeak = peak_indices[-1]
+    lastPeakUsed = False
+
+    cleared_peaks = np.array([]).reshape(-1)
+
+    n_peaks = len(peak_indices)
+    winLen = lastPeak/n_peaks * 10
+    
+    left, right = 0, winLen
+    
+    while not lastPeakUsed:
+        
+        currentPeakBatch = [(peak_idx, param) for peak_idx, param in\
+                            zip(peak_indices, peak_params['prominences'])\
+                            if peak_idx >= left and peak_idx < right]
             
+        currentPeaks = [p[0] for p in currentPeakBatch]
+        currentProminences = [p[1] for p in currentPeakBatch]
+        
+        if lastPeak in currentPeaks:
+            lastPeakUsed = True
+        
+        left += winLen
+        right += winLen
+        
+        # qpeak = np.quantile(currentProminences, 0.5) 
+        qpeak = np.mean(currentProminences)
+
+        remove_idx = [i for i, idx in enumerate(currentPeaks) if currentProminences[i] < qpeak/3]
+        cleared_peaks = np.append(cleared_peaks, np.delete(currentPeaks, remove_idx))    
+        
+    return cleared_peaks  
 
