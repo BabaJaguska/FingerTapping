@@ -3,12 +3,13 @@ from math import sqrt
 import numpy as np
 
 from Artefact import Artefact
-from Util import calc_no_drift_integral_filter, calc_diff
+from Util import calc_no_drift_integral_poly, calc_diff
 
 
 def extract(measurements):
     results = []
     for measurement in measurements:
+        print(measurement.id)
         artefacts = extract_artefacts(measurement)
         if artefacts is not None: results.append(artefacts)
     return results
@@ -98,11 +99,12 @@ def power_info3(signals, use_taps, time_tap):
 
 def generic_signal_info(signals, use_taps, time_tap, function, prefix):
     if use_taps:
-        val = signals[time_tap[0]:time_tap[-1]]
+         # val = signals[time_tap[0]:time_tap[-1]]
+         val = signals
     else:
         val = signals
 
-    val = function(val)
+    val = function(val, time_tap)
 
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
 
@@ -125,7 +127,7 @@ def generic_taps_signal_info(signals, use_taps, time_tap, function, prefix):
 
     val = []
     for tap in taps:
-        tap = function(tap)
+        tap = function(tap, time_tap)
         max_i = max(tap)
         val.append(max_i)
 
@@ -150,7 +152,7 @@ def generic_wobbling_signal_info(signals, use_taps, time_tap, function, prefix):
 
     taps2 = []
     for tap in taps:
-        tap = function(tap)
+        tap = function(tap, time_tap)
         taps2.append(tap)
 
     angles, areas = calc_max_wobbling(taps2)
@@ -196,7 +198,8 @@ def taps_info(signals, use_taps, time_tap):
 
 def specter_info(signals, use_taps, time_tap):
     if use_taps:
-        val = signals[time_tap[0]:time_tap[-1]]
+        # val = signals[time_tap[0]:time_tap[-1]]
+        val = signals
     else:
         val = signals
 
@@ -385,7 +388,7 @@ functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info,
 
 functionsTest = [angle_info, angle_info2, angle_info3]
 
-functions = functionsTest #functions1_2
+functions = functions1_2
 
 
 def get1x(measurement):
@@ -435,19 +438,19 @@ class ExtractionInfo:
         return
 
 
-def trans(val):
+def trans(val, time_tap=[]):
     return val
 
 
-def diff(val):
+def diff(val, time_tap=[]):
     return calc_diff(val)
 
 
-def integral(val):
-    return calc_no_drift_integral_filter(val)
+def integral(val, time_tap):
+    return calc_no_drift_integral_poly(val, time_tap)
 
 
-def pow2(val):
+def pow2(val, time_tap=[]):
     return val * val
 
 

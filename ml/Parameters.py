@@ -158,7 +158,8 @@ stretch_len = 100  # na koliko odbiraka da isteglji signal
 default_results_path = './results/'  # folder sa rezultatima
 default_results_file = 'result.txt'  # fajla sa tekstualnim rezultatima
 default_results_csv = 'results.csv'  # fajl sa csv rezultatima
-splits_file = './allSplits.txt'  # fajl sa odredjenim granicama tapova
+# splits_file = './allSplits.txt'  # fajl sa odredjenim granicama tapova
+splits_file_integral = './integralSplits.txt'
 result_in_csv = False
 
 # default_root_path = './data/raw data/' # folder sa podacima koji sadrze i spektrogram

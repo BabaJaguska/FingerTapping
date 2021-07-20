@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.signal import butter, filtfilt
+from numpy.polynomial import Chebyshev
 
 
 def calc_integral(data):
@@ -42,6 +43,20 @@ def calc_no_drift_integral_filter(data):
     low, high = lowcut/nf, highcut/nf
     b, a = butter(order, [low, high], btype = 'band')
     result = filtfilt(b, a, integral, method = 'gust')
+    return result
+
+def calc_no_drift_integral_poly(data, time_tap):
+    # NE MOZE NA TAP DA SE PRIMENI JEDAN
+    result = []
+    integral = calc_integral(data)
+    y_tap = integral[time_tap]
+    
+    # plt.plot(integral[:1000],'k'), plt.stem(time_tap[:10], integral[time_tap[:10]], 'r', use_line_collection=True), plt.show()
+    deg = 5
+    cc = Chebyshev.fit(time_tap, y_tap, deg)
+    xx, yy = cc.linspace(len(integral))
+    result = integral - yy
+    
     return result
 
 

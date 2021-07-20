@@ -280,7 +280,7 @@ if __name__ == '__main__':
     modifierFile = 'ModifyPoints.txt'     
         
     # ======= READ DATA =======
-    integrateFirst = 1
+    integrateFirst = 1 # !!! PAZI NA OVO
     if splitMethod == 'auto':
         
         print('===========================================================')
