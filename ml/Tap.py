@@ -8,7 +8,7 @@ import Parameters
 import Util
 
 
-def load_all_taps(taps_file=Parameters.splits_file_integral):
+def load_all_taps(taps_file=Parameters.splits_file):
     taps = []
     with open(taps_file, 'r') as f:
         lines = f.readlines()

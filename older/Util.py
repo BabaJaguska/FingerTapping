@@ -32,7 +32,7 @@ def calc_no_drift_integral(data):
     result = integral - drift
     return result
 
-def calc_no_drift_integral_filter(data):
+def calc_no_drift_integral_filter(data, time_tap = []):
     integral = calc_integral(data)
     
     # bandpass filter

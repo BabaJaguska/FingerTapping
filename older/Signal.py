@@ -11,6 +11,7 @@ from tqdm import tqdm
 import Diagnosis
 import Parameters
 import Tap
+# from scipy.signal import decimate
 
 
 class Signal:
@@ -26,10 +27,26 @@ class Signal:
 
         # file
         self.file = file
+        
+        # decimateRate = 1
+        # # force
+        # fsr = decimate(fsr,decimateRate)
+                
+        # # angular velocity
+        # gyro1x = decimate(gyro1x,decimateRate) # thumb
+        # gyro1y = decimate(gyro1y,decimateRate) # thumb
+        # gyro1z = decimate(gyro1z,decimateRate) # thumb
+
+        # gyro2x = decimate(gyro2x,decimateRate) # forefinger
+        # gyro2y = decimate(gyro2y,decimateRate) # forefinger
+        # gyro2z = decimate(gyro2z,decimateRate) # forefinger
+        # print('decimating')
 
         # force
         self.fsr = fsr[start_index:end_index] if len(fsr) > 0 else []
 
+
+        
         # angular velocity
         # thumb
         self.gyro1x = gyro1x[start_index:end_index] if len(gyro1x) > 0 else []
@@ -70,6 +87,7 @@ class Signal:
         self.date = date  # date of recording
         self.time_of_measurement = time_of_measurement  # what time that date
         self.length = len(gyro1x)
+        self.id = file[-19:]
 
     def plot_signal(self, tmin, tmax):
         # gyro1

@@ -7,6 +7,7 @@ import numpy as np
 import numpy.ma as ma
 from scipy import io
 from tqdm import tqdm
+# from scipy.signal import decimate
 
 import Diagnosis
 import Parameters
@@ -17,7 +18,7 @@ class Signal:
 
     def __init__(self, file, fsr,
                  gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, spectrogram_t, spectrogram_i,
-                 tap_task, time, time_tap, ttap_start, ttap_stop, diagnosis, initials, date, time_of_measurement,
+                 tap_task, time, time_tap, time_tap_integral, ttap_start, ttap_stop, diagnosis, initials, date, time_of_measurement,
                  shift_time=True):
         s_rate = 200
         start_index = int((ttap_start + 0.3) * s_rate) if shift_time else 0
@@ -26,6 +27,21 @@ class Signal:
 
         # file
         self.file = file
+        
+        
+        # decimateRate = 1
+        # # force
+        # fsr = decimate(fsr,decimateRate)
+                
+        # # angular velocity
+        # gyro1x = decimate(gyro1x,decimateRate) # thumb
+        # gyro1y = decimate(gyro1y,decimateRate) # thumb
+        # gyro1z = decimate(gyro1z,decimateRate) # thumb
+
+        # gyro2x = decimate(gyro2x,decimateRate) # forefinger
+        # gyro2y = decimate(gyro2y,decimateRate) # forefinger
+        # gyro2z = decimate(gyro2z,decimateRate) # forefinger
+
 
         # force
         self.fsr = fsr[start_index:end_index] if len(fsr) > 0 else []
@@ -62,6 +78,7 @@ class Signal:
         self.tap_task = tap_task  # LHEO/LHEC/RHEO/RHEC (left or right hand/eyes open or closed)
         self.time = time[start_index:end_index]  # time
         self.time_tap = time_tap  # list of taps start/end time
+        self.time_tap_integral = time_tap_integral
         self.ttap_start = ttap_start + 0.3 if not shift_time else 0  # single value, when the actual signal started SECONDS
         self.ttap_stop = ttap_stop - 0.3 if not shift_time else len(
             gyro1x) / s_rate  # single value, when the actual signal stopped SECONDS
@@ -150,7 +167,8 @@ class Signal:
     def copy(self):
         result = Signal(self.file, self.fsr.copy(), self.gyro1x.copy(), self.gyro1y.copy(), self.gyro1z.copy(),
                         self.gyro2x.copy(), self.gyro2y.copy(), self.gyro2z.copy(), self.spectrogram_t.copy(),
-                        self.spectrogram_i.copy(), self.tap_task, self.time, self.time_tap.copy(), self.ttap_start,
+                        self.spectrogram_i.copy(), self.tap_task, self.time, self.time_tap.copy(), self.time_tap_integral.copy(),
+                        self.ttap_start,
                         self.ttap_stop, self.diagnosis, self.initials, self.date, self.time_of_measurement, False)
 
         return result
@@ -223,6 +241,7 @@ def load(root, directory, file):
     tap_task = 'RHEO'  # ????
     time = sig['time'][0][0][0]
     time_tap = []
+    time_tap_integral = []
     ttapstart = time[0]
     ttapstop = time[len(time) - 1]
     diagnosis = directory
@@ -236,7 +255,7 @@ def load(root, directory, file):
         time_of_measurement = file[36:44]
 
     temp = Signal(file, fsr, gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, ThumbWVD, IndexWVD, tap_task, time,
-                  time_tap, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
+                  time_tap, time_tap_integral, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
 
     return temp
 
@@ -260,6 +279,7 @@ def load_minja(root, directory, file):
     tap_task = sig['tap_task'][0]
     time = sig['time'][0]
     time_tap = sig['time_tap'][0]
+    time_tap_integral = []
     ttapstart = sig['ttapstart'][0, 0]
     ttapstop = sig['ttapstop'][0, 0]
     initials = file[0:2]
@@ -277,20 +297,25 @@ def load_minja(root, directory, file):
     IndexWVD = []
 
     temp = Signal(file, fsr, gyro1x, gyro1y, gyro1z, gyro2x, gyro2y, gyro2z, ThumbWVD, IndexWVD, tap_task, time,
-                  time_tap, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
+                  time_tap, time_tap_integral, ttapstart, ttapstop, diagnosis, initials, date, time_of_measurement)
 
     return temp
 
 
-def load_all(root=Parameters.default_root_path, taps_file=Parameters.splits_file_integral):
+def load_all(root=Parameters.default_root_path, taps_file=Parameters.splits_file,
+             taps_file_integral = Parameters.splits_file_integral):
     signals = load_all_signals(root)
     all_taps = Tap.load_all_taps(taps_file)
+    all_taps_integral = Tap.load_all_taps(taps_file_integral)
     for signal in signals:
         file_name = signal.file
         file_name = file_name[-31:-12]
         time_tap = [tap['allSplitPoints'] for tap in all_taps if tap['id'][-19:] == file_name]
+        time_tap_integral = [tap['allSplitPoints'] for tap in all_taps_integral if tap['id'][-19:] == file_name]
         signal.time_tap = time_tap if len(time_tap) == 0 else time_tap[0]
+        signal.time_tap_integral = time_tap_integral if len(time_tap_integral) == 0 else time_tap_integral[0]
     return signals
+
 
 
 def load_all_signals(root=Parameters.default_root_path):
