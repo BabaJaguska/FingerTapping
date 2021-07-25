@@ -2,9 +2,12 @@
 
 def normalise(artefacts):
     min_max = dict()
-
     for artefact in artefacts:
         for data_name in artefact.dict_values:
+            
+            if 'ca' in data_name or 'cd' in data_name:
+                continue
+                
             data_value = artefact.dict_values[data_name].value
             if data_name in min_max:
                 vals = min_max[data_name]
@@ -17,6 +20,9 @@ def normalise(artefacts):
 
     for artefact in artefacts:
         for data_name in artefact.dict_values:
+            if 'ca' in data_name or 'cd' in data_name:
+                continue
+            
             data_value = artefact.dict_values[data_name].value
             vals = min_max[data_name]
             min_val = vals[0]

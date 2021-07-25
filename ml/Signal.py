@@ -86,7 +86,7 @@ class Signal:
         self.initials = initials  # person name and surname initials
         self.date = date  # date of recording
         self.time_of_measurement = time_of_measurement  # what time that date
-        self.length = len(gyro1x)
+        self.length = len(self.gyro1x)
         self.id = self.diagnosis + self.initials + self.date + self.time_of_measurement
 
     def plot_signal(self, tmin, tmax):
@@ -328,9 +328,12 @@ def load_all_signals(root=Parameters.default_root_path):
             dir_name = root + current_dir + '/' + subdir + '/'
             _, _, files1 = os.walk(dir_name).__next__()
             if Parameters.data_packing_type == 'Zaki':
-                signals = signals + [load(root, current_dir, subdir + '/' + file) for file in files1]
+                tempSignal = [load(root, current_dir, subdir + '/' + file) for file in files1]
             else:
-                signals = signals + [load_minja(root, current_dir, subdir + '/' + file) for file in files1]
+                tempSignal = [load_minja(root, current_dir, subdir + '/' + file) for file in files1]
+                
+            tempSignal = [tt for tt in tempSignal if tt.length >=2000]
+            signals += tempSignal
     return signals
 
 

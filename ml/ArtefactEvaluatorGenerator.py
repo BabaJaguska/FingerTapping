@@ -8,6 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
+
 import Diagnosis
 
 
@@ -108,9 +109,16 @@ def artefacts_to_nd(artefacts):
     x = []
     y = []
     for artefact in artefacts:
-        x.append(artefact.values)
-        y.append(artefact.result)
-
+        temp = []
+        for xxx in artefact.values:    
+            if isinstance(xxx, np.ndarray) or isinstance(xxx, list):
+                for ttt in xxx:
+                    temp.append(ttt)    
+            else:
+                temp.append(xxx)
+        x.append(temp)
+        y.append(artefact.result)   
+    
     return x, y
 
 

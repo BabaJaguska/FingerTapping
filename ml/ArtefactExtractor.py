@@ -4,6 +4,8 @@ import numpy as np
 
 from Artefact import Artefact
 from Util import  calc_diff, calc_no_drift_integral, calc_no_drift_integral_poly
+import pywt
+from itertools import chain
 
 
 def extract(measurements):
@@ -393,6 +395,29 @@ def calc_max_wobbling(taps):
 
     return angles, areas
 
+def wavelet_info(signals, use_taps, time_tap, time_tap_integral):
+    
+    if use_taps:
+        val = signals[time_tap[0]: time_tap[-1]]
+    else:
+        val = signals
+    
+    if len(val) > 2000:
+        val = val[:2000]
+        
+    coeffs = pywt.wavedec(val, 'db4', level = 7)
+    
+    result = (ExtractionInfo('cd1', coeffs[0]), 
+              ExtractionInfo('cd2', coeffs[1]),
+              ExtractionInfo('cd3', coeffs[2]),
+            ExtractionInfo('cd4', coeffs[3]),
+            ExtractionInfo('cd5', coeffs[4]),
+            ExtractionInfo('cd6', coeffs[5]),
+            ExtractionInfo('cd7', coeffs[6]),
+            ExtractionInfo('ca', coeffs[7]))
+    
+    
+    return result 
 
 functions1 = [speed_info, acc_info, angle_info2, power_info, taps_info, specter_info]  # TODO namerno stoji angle_info2
 functions2 = [speed_info2, acc_info2, angle_info2, power_info2, taps_info, specter_info2]
@@ -407,9 +432,11 @@ functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info,
                   angle_info2, power_info2, specter_info2, 
                   speed_info3, acc_info3, angle_info3, power_info3]
 
-functionsTest = [angle_info, angle_info2, angle_info3]
+functionsTest = [speed_info, acc_info, angle_info, power_info,
+                taps_info, specter_info, speed_info2, acc_info2,
+                angle_info2, power_info2, specter_info2,  wavelet_info]
 
-functions = functions1_2
+functions = functionsTest
 
 
 def get1x(measurement):
@@ -499,3 +526,25 @@ def print_all(artefacts, file_name='./results/raw_data.txt'):
         file.close()
 
     return
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

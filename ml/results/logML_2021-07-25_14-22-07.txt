@@ -1,0 +1,7 @@
+gyro2y_acc_rms
+gyro2x_power_avg
+gyro1x_max_val
+gyro2Vec_median_frequency
+gyro2y_max_speed_avg
+gyro1z_max_acc_std
+111111	LR	119.0	LDA	123.0	KNN	204.0	CART	117.0	NB	131.0	SVM	115.0
