@@ -17,9 +17,11 @@ def main():
 
     artefacts = ArtefactFilter.filtering(artefacts)
     print(ArtefactFilter.get_filtered_names())
-
+    
+    N = len(artefacts)
     selectors = ArtefactSelectorGenerator.select(artefacts, selection_type='SEQUENCE',
-                                                 start_index=63, end_index=64,
+                                                 # start_index=63, end_index=64,
+                                                 start_index = (2**N) -1, end_index = (2**N),
                                                  initial_selectors=[0b111111])
 
     print(selectors)

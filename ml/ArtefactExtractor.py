@@ -99,6 +99,36 @@ def power_info3(signals, use_taps, time_tap, time_tap_integral):
     result = generic_wobbling_signal_info(signals, use_taps, time_tap, pow2, 'power')
     return result
 
+def wavelet_info_3(signals, use_taps, time_tap, time_tap_integral):
+    level = 3
+    dwt = wavelet_decomposition(signals, use_taps, time_tap, level)
+    result = generic_signal_info(dwt, 0, time_tap, trans, 'wavelet_3')
+    return result
+
+def wavelet_info_4(signals, use_taps, time_tap, time_tap_integral):
+    level = 4
+    dwt = wavelet_decomposition(signals, use_taps, time_tap, level)
+    result = generic_signal_info(dwt, 0, time_tap, trans, 'wavelet_4')
+    return result
+
+def wavelet_info_5(signals, use_taps, time_tap, time_tap_integral):
+    level = 5
+    dwt = wavelet_decomposition(signals, use_taps, time_tap, level)
+    result = generic_signal_info(dwt, 0, time_tap, trans, 'wavelet_5')
+    return result
+
+def wavelet_info_6(signals, use_taps, time_tap, time_tap_integral):
+    level = 6
+    dwt = wavelet_decomposition(signals, use_taps, time_tap, level)
+    result = generic_signal_info(dwt, 0, time_tap, trans, 'wavelet_6')
+    return result
+
+def wavelet_info_7(signals, use_taps, time_tap, time_tap_integral):
+    level = 7
+    dwt = wavelet_decomposition(signals, use_taps, time_tap, level)
+    result = generic_signal_info(dwt, 0, time_tap, trans, 'wavelet_7')
+    return result
+
 
 def generic_signal_info(signals, use_taps, time_tap, function, prefix):
     if use_taps:
@@ -108,8 +138,11 @@ def generic_signal_info(signals, use_taps, time_tap, function, prefix):
         val = signals
 
     val = function(val, time_tap)
-
-    min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
+    
+    temp = standard_info(val)
+    if len(temp) <7:
+        print('wut?')
+    min_val, max_val, avg_val, rms_val, crest_val, std_val, papr_val = temp
 
     result = (
         ExtractionInfo(prefix + '_min', min_val), 
@@ -118,7 +151,7 @@ def generic_signal_info(signals, use_taps, time_tap, function, prefix):
         ExtractionInfo(prefix + '_rms', rms_val),
         ExtractionInfo(prefix + '_crest', crest_val),
         ExtractionInfo(prefix + '_std', std_val),
-        ExtractionInfo(prefix + '_parp', parp_val))
+        ExtractionInfo(prefix + '_papr', papr_val))
     return result
 
 
@@ -395,7 +428,7 @@ def calc_max_wobbling(taps):
 
     return angles, areas
 
-def wavelet_info(signals, use_taps, time_tap, time_tap_integral):
+def wavelet_decomposition(signals, use_taps, time_tap, level):
     
     if use_taps:
         val = signals[time_tap[0]: time_tap[-1]]
@@ -407,14 +440,16 @@ def wavelet_info(signals, use_taps, time_tap, time_tap_integral):
         
     coeffs = pywt.wavedec(val, 'db4', level = 7)
     
-    result = (ExtractionInfo('cd1', coeffs[0]), 
-              ExtractionInfo('cd2', coeffs[1]),
-              ExtractionInfo('cd3', coeffs[2]),
-            ExtractionInfo('cd4', coeffs[3]),
-            ExtractionInfo('cd5', coeffs[4]),
-            ExtractionInfo('cd6', coeffs[5]),
-            ExtractionInfo('cd7', coeffs[6]),
-            ExtractionInfo('ca', coeffs[7]))
+    result = coeffs[level-1]
+    
+    # result = (ExtractionInfo('cd1', coeffs[0]), 
+    #           ExtractionInfo('cd2', coeffs[1]),
+    #           ExtractionInfo('cd3', coeffs[2]),
+    #         ExtractionInfo('cd4', coeffs[3]),
+    #         ExtractionInfo('cd5', coeffs[4]),
+    #         ExtractionInfo('cd6', coeffs[5]),
+    #         ExtractionInfo('cd7', coeffs[6]),
+    #         ExtractionInfo('ca', coeffs[7]))
     
     
     return result 
@@ -434,7 +469,8 @@ functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info,
 
 functionsTest = [speed_info, acc_info, angle_info, power_info,
                 taps_info, specter_info, speed_info2, acc_info2,
-                angle_info2, power_info2, specter_info2,  wavelet_info]
+                angle_info2, power_info2, specter_info2,  wavelet_info_3, wavelet_info_4,
+                wavelet_info_5, wavelet_info_6, wavelet_info_7]
 
 functions = functionsTest
 

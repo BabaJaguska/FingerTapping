@@ -746,11 +746,10 @@ used_artefacts_mix28 = ['gyro1x_max_speed_rms', 'gyro1x_max_power_min', 'gyro1y_
 
 used_artefacts_mix29 = ['gyro2y_acc_rms', 'gyro2x_power_avg', 'gyro1x_max_val', 'gyro2Vec_median_frequency',
                         'gyro2y_max_speed_avg', 'gyro1z_max_acc_std']  # TODO trenutno najblja kombinacija sa 205 od 268
+
 used_artefacts_mix291 = [ 'gyro2y_acc_rms','gyro2x_power_avg', 'gyro1x_max_val', 'gyro2Vec_median_frequency',
-                        'gyro2y_max_speed_avg', 'gyro1z_max_acc_std', 'gyro2y_ca', 'gyro2y_cd1',
-                        'gyro2y_cd2','gyro2y_cd3','gyro2y_cd4','gyro2y_cd5','gyro2y_cd6','gyro2y_cd7',
-                        'gyro1y_ca', 'gyro1y_cd1',
-                        'gyro1y_cd2','gyro1y_cd3','gyro1y_cd4','gyro1y_cd5','gyro1y_cd6','gyro1y_cd7'] 
+                        'gyro2y_max_speed_avg', 'gyro1z_max_acc_std', 'gyro2y_wavelet_3_papr', 'gyro2y_wavelet_3_std',
+                        'gyro2y_wavelet_4_crest', 'gyro2y_wavelet_5_crest', 'gyro2y_wavelet_6_rms', 'gyro2x_wavelet_7_rms'] 
 
 used_artefacts_mix30 = ['gyro2y_acc_rms', 'gyro2x_power_avg', 'gyro1x_max_val', 'gyro2Vec_median_frequency',
                         'gyro2y_max_speed_avg', 'gyro1z_max_acc_std',

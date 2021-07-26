@@ -7,6 +7,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier 
 
 
 import Diagnosis
@@ -30,6 +31,7 @@ class Evaluator:
         self.models.append(('CART', DecisionTreeClassifier()))
         self.models.append(('NB', GaussianNB()))
         self.models.append(('SVM', SVC(gamma='auto')))
+        # self.models.append(('MLP', MLPClassifier(hidden_layer_sizes = (100,50), activation = 'logistic')))
 
         # self.models.append(('KNN1', KNeighborsClassifier(metric='euclidean')))
         # self.models.append(('KNN2', KNeighborsClassifier(metric='manhattan')))
