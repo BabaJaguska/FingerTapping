@@ -1,28 +1,30 @@
 from datetime import datetime
 
 import Parameters
-from ml import ArtefactFilter
+import ArtefactFilter
 
 
 def evaluate(artefacts, selectors, test, evaluator):
     results = []
-
-    for selector in selectors:
-        selected_artefacts = selector.select(artefacts)
+    imps = []
+    
+    for s in selectors:
+        selected_artefacts = s.select(artefacts)
 
         evaluation_results = []
         testing_combinations = test.create_combinations(selected_artefacts)
         for testing_combination in testing_combinations:
-            single_evaluation = evaluator.evaluate(testing_combination)
+            single_evaluation, imp = evaluator.evaluate(testing_combination)
             evaluation_results.append(single_evaluation)
+            imps.append(imp)
 
         selectors_result = evaluator.combine_evaluations(evaluation_results)
-        selectors_result.set_selector(selector)
+        selectors_result.set_selector(s)
         results.append(selectors_result)
         log(selectors_result)
         if len(results) % 500 == 0: print_best(results)
 
-    return results
+    return results, imps
 
 
 def print_best(results):

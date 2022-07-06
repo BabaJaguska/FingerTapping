@@ -1,5 +1,6 @@
-from ml.Artefact import Artefact
-from math import comb
+from Artefact import Artefact
+# from math import comb
+from scipy.special import comb
 import random
 
 
@@ -284,20 +285,21 @@ class ArtefactSelector:
 
     def select(self, artefacts):
         results = []
-        for artefact in artefacts:
-            result = self.select_for_one(artefact)
+        for art in artefacts:
+            result = self.select_for_one(art)
             results.append(result)
         return results
 
-    def select_for_one(self, artefact):
+    def select_for_one(self, art):
         selected_values = []
 
         current = self.selector
-        for i in range(len(artefact.values)):
-            value = artefact.values[i]
+        for i in range(len(art.values)):
+            value = art.values[i]
             if current & 1 == 1:
                 selected_values.append(value)
             current = current >> 1
-        result = Artefact(artefact.name, artefact.description + '_' + artefact.result, selected_values, None,
-                          artefact.result)
+        result = Artefact(art.name, art.description + '_' + art.result,
+                          selected_values, None,
+                          art.result)
         return result

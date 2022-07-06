@@ -3,12 +3,13 @@ from math import sqrt
 import numpy as np
 
 from Artefact import Artefact
-from Util import calc_no_drift_integral, calc_diff
+from Util import  calc_diff, calc_no_drift_integral, calc_no_drift_integral_poly
 
 
 def extract(measurements):
     results = []
     for measurement in measurements:
+        # print(measurement.id)
         artefacts = extract_artefacts(measurement)
         if artefacts is not None: results.append(artefacts)
     return results
@@ -20,11 +21,12 @@ def extract_artefacts(measurement, use_taps=True):
     dict_values = dict()
 
     time_tap = measurement.time_tap
+    time_tap_integral = measurement.time_tap_integral
 
     for function in functions:
         for get in getters:
             signals, name = get(measurement)
-            vals = function(signals, use_taps, time_tap)
+            vals = function(signals, use_taps, time_tap, time_tap_integral)
             for val in vals:
                 val.update_name(name)
                 dict_values[val.name] = val
@@ -36,102 +38,111 @@ def extract_artefacts(measurement, use_taps=True):
     return result
 
 
-def speed_info(signals, use_taps, time_tap):
+def speed_info(signals, use_taps, time_tap, time_tap_integral):
     result = generic_signal_info(signals, use_taps, time_tap, trans, 'speed')
     return result
 
 
-def speed_info2(signals, use_taps, time_tap):
+def speed_info2(signals, use_taps, time_tap, time_tap_integral):
     result = generic_taps_signal_info(signals, use_taps, time_tap, trans, 'speed')
     return result
 
 
-def speed_info3(signals, use_taps, time_tap):
+def speed_info3(signals, use_taps, time_tap, time_tap_integral):
     result = generic_wobbling_signal_info(signals, use_taps, time_tap, trans, 'speed')
     return result
 
 
-def acc_info(signals, use_taps, time_tap):
+def acc_info(signals, use_taps, time_tap, time_tap_integral):
     result = generic_signal_info(signals, use_taps, time_tap, diff, 'acc')
     return result
 
 
-def acc_info2(signals, use_taps, time_tap):
+def acc_info2(signals, use_taps, time_tap, time_tap_integral):
     result = generic_taps_signal_info(signals, use_taps, time_tap, diff, 'acc')
     return result
 
 
-def acc_info3(signals, use_taps, time_tap):
+def acc_info3(signals, use_taps, time_tap, time_tap_integral):
     result = generic_wobbling_signal_info(signals, use_taps, time_tap, diff, 'acc')
     return result
 
 
-def angle_info(signals, use_taps, time_tap):
-    result = generic_signal_info(signals, use_taps, time_tap, integral, 'angle')
+def angle_info(signals, use_taps, time_tap, time_tap_integral):
+    result = generic_signal_info(signals, use_taps, time_tap_integral, integral, 'angle')
     return result
 
 
-def angle_info2(signals, use_taps, time_tap):
-    result = generic_taps_signal_info(signals, use_taps, time_tap, integral, 'angle')
+def angle_info2(signals, use_taps, time_tap, time_tap_integral):
+    result = generic_taps_signal_info(signals, use_taps, time_tap_integral, integral, 'angle')
     return result
 
 
-def angle_info3(signals, use_taps, time_tap):
-    result = generic_wobbling_signal_info(signals, use_taps, time_tap, integral, 'angle')
+def angle_info3(signals, use_taps, time_tap, time_tap_integral):
+    result = generic_wobbling_signal_info(signals, use_taps, time_tap_integral, integral, 'angle')
     return result
 
 
-def power_info(signals, use_taps, time_tap):
+def power_info(signals, use_taps, time_tap, time_tap_integral):
     result = generic_signal_info(signals, use_taps, time_tap, pow2, 'power')
     return result
 
 
-def power_info2(signals, use_taps, time_tap):
+def power_info2(signals, use_taps, time_tap, time_tap_integral):
     result = generic_taps_signal_info(signals, use_taps, time_tap, pow2, 'power')
     return result
 
 
-def power_info3(signals, use_taps, time_tap):
+def power_info3(signals, use_taps, time_tap, time_tap_integral):
     result = generic_wobbling_signal_info(signals, use_taps, time_tap, pow2, 'power')
     return result
 
 
 def generic_signal_info(signals, use_taps, time_tap, function, prefix):
     if use_taps:
-        val = signals[time_tap[0]:time_tap[-1]]
+         val = signals[time_tap[0]:time_tap[-1]]
+         #val = signals
     else:
         val = signals
 
-    val = function(val)
+    val = function(val, time_tap)
 
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
 
     result = (
-        ExtractionInfo(prefix + '_min', min_val), ExtractionInfo(prefix + '_max', max_val),
-        ExtractionInfo(prefix + '_avg', avg_val), ExtractionInfo(prefix + '_rms', rms_val),
-        ExtractionInfo(prefix + '_crest', crest_val), ExtractionInfo(prefix + '_std', std_val),
+        ExtractionInfo(prefix + '_min', min_val), 
+        ExtractionInfo(prefix + '_max', max_val),
+        ExtractionInfo(prefix + '_avg', avg_val), 
+        ExtractionInfo(prefix + '_rms', rms_val),
+        ExtractionInfo(prefix + '_crest', crest_val),
+        ExtractionInfo(prefix + '_std', std_val),
         ExtractionInfo(prefix + '_parp', parp_val))
     return result
 
 
 def generic_taps_signal_info(signals, use_taps, time_tap, function, prefix):
+
+    signals = function(signals, time_tap)
     if use_taps:
         taps = get_signal_taps(signals, time_tap)
     else:
         taps = [signals]
-
+        
     val = []
-    for tap in taps:
-        tap = function(tap)
+    for tap in taps:  
+        # tap = function(tap, time_tap)
         max_i = max(tap)
         val.append(max_i)
 
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
 
     result = (
-        ExtractionInfo('max_' + prefix + '_min', min_val), ExtractionInfo('max_' + prefix + '_max', max_val),
-        ExtractionInfo('max_' + prefix + '_avg', avg_val), ExtractionInfo('max_' + prefix + '_rms', rms_val),
-        ExtractionInfo('max_' + prefix + '_crest', crest_val), ExtractionInfo('max_' + prefix + '_std', std_val),
+        ExtractionInfo('max_' + prefix + '_min', min_val),
+        ExtractionInfo('max_' + prefix + '_max', max_val),
+        ExtractionInfo('max_' + prefix + '_avg', avg_val), 
+        ExtractionInfo('max_' + prefix + '_rms', rms_val),
+        ExtractionInfo('max_' + prefix + '_crest', crest_val),
+        ExtractionInfo('max_' + prefix + '_std', std_val),
         ExtractionInfo('max_' + prefix + '_parp', parp_val))
     return result
 
@@ -144,14 +155,16 @@ def generic_wobbling_signal_info(signals, use_taps, time_tap, function, prefix):
 
     taps2 = []
     for tap in taps:
-        tap = function(tap)
+        tap = function(tap, time_tap)
         taps2.append(tap)
 
     angles, areas = calc_max_wobbling(taps2)
-    angle_min_val, angle_max_val, angle_agv_val, angle_rms_val, angle_crest_val, angle_std_val, angle_papr_val = standard_info(
-        angles)
-    area_min_val, area_max_val, area_agv_val, area_rms_val, area_crest_val, area_std_val, area_papr_val = standard_info(
-        areas)
+    
+    angle_min_val, angle_max_val, angle_agv_val, angle_rms_val, \
+    angle_crest_val, angle_std_val, angle_papr_val = standard_info(angles)
+    
+    area_min_val, area_max_val, area_agv_val, area_rms_val,\
+    area_crest_val, area_std_val, area_papr_val = standard_info(areas)
 
     result = (
         ExtractionInfo(prefix + '_wangle_avg', angle_agv_val), ExtractionInfo(prefix + '_wangle_rms', angle_rms_val),
@@ -163,7 +176,7 @@ def generic_wobbling_signal_info(signals, use_taps, time_tap, function, prefix):
     return result
 
 
-def taps_info(signals, use_taps, time_tap):
+def taps_info(signals, use_taps, time_tap, time_tap_integral):
     time_tap = time_tap
 
     val = []
@@ -186,14 +199,16 @@ def taps_info(signals, use_taps, time_tap):
     return result
 
 
-def specter_info(signals, use_taps, time_tap):
+def specter_info(signals, use_taps, time_tap, time_tap_integral):
     if use_taps:
         val = signals[time_tap[0]:time_tap[-1]]
+        #val = signals
     else:
         val = signals
 
-    dc_value, delta_frequency, frequency_ratio, frequency_ratio1, max_frequency, max_val, median_frequency, median_frequency1, median_frequency2, median_pow = standard_specter_info(
-        val, time_tap)
+    dc_value, delta_frequency, frequency_ratio, frequency_ratio1,\
+        max_frequency, max_val, median_frequency, median_frequency1,\
+            median_frequency2, median_pow = standard_specter_info(val, time_tap)
 
     result = (
         ExtractionInfo('max_val', max_val), ExtractionInfo('max_frequency', max_frequency),
@@ -205,7 +220,7 @@ def specter_info(signals, use_taps, time_tap):
     return result
 
 
-def specter_info2(signals, use_taps, time_tap):
+def specter_info2(signals, use_taps, time_tap, time_tap_integral):
     if use_taps:
         taps = get_signal_taps(signals, time_tap)
     else:
@@ -213,8 +228,9 @@ def specter_info2(signals, use_taps, time_tap):
 
     val = []
     for tap in taps:
-        dc_value, delta_frequency, frequency_ratio, frequency_ratio1, max_frequency, max_val, median_frequency, median_frequency1, median_frequency2, median_pow = standard_specter_info(
-            tap, time_tap)
+        dc_value, delta_frequency, frequency_ratio, frequency_ratio1,\
+            max_frequency, max_val, median_frequency, median_frequency1, \
+                median_frequency2, median_pow = standard_specter_info(tap, time_tap)
         val.append(median_frequency)
 
     min_val, max_val, avg_val, rms_val, crest_val, std_val, parp_val = standard_info(val)
@@ -238,11 +254,22 @@ def standard_specter_info(val, time_tap):
     delta_frequency = (median_frequency - max_frequency) / median_frequency if median_frequency > 0 else 0
     num_taps = len(time_tap)
     taps_len = len(val)
-    calc_frequency = num_taps / taps_len
-    frequency_ratio = median_frequency / calc_frequency
-    frequency_ratio1 = max_frequency / calc_frequency
-    median_frequency1, median_frequency2, median_pow1 = calc_median_frequency2(val)
-    return dc_value, delta_frequency, frequency_ratio, frequency_ratio1, max_frequency, max_val, median_frequency, median_frequency1, median_frequency2, median_pow
+    
+    if taps_len >0:
+        cadence = num_taps / taps_len
+        frequency_ratio = median_frequency / cadence
+        frequency_ratio1 = max_frequency / cadence
+        median_frequency1, median_frequency2, median_pow1 = calc_median_frequency2(val)
+    else:
+        cadence = 0
+        frequency_ratio, frequency_ratio1 = 0,0
+        max_frequency, max_val = 0,0
+        median_frequency, median_frequency1, median_frequency2 = 0,0,0
+        median_pow - 0
+        
+    return dc_value, delta_frequency, frequency_ratio, frequency_ratio1,\
+        max_frequency, max_val, median_frequency, median_frequency1, \
+            median_frequency2, median_pow
 
 
 def calc_median_frequency(data):
@@ -253,8 +280,12 @@ def calc_median_frequency(data):
         sum1 = sum1 + data[i]
         if sum1 * 2 >= integral:
             break
-    median_frequency = i / len(data)
-    median_specter_power = integral / len(data)
+    if len(data)>0:
+        median_frequency = i / len(data)
+        median_specter_power = integral / len(data)
+    else:
+        median_frequency = 0
+        median_specter_power = 0
     return median_frequency, median_specter_power
 
 
@@ -286,8 +317,13 @@ def calc_max_frequency(data):
         if data[i] > max_val:
             max_val = data[i]
             max_frequency = i
-    max_frequency = max_frequency / len(data)
-    max_val = max_val / len(data)
+    if len(data) > 0:
+        max_frequency = max_frequency / len(data)
+        max_val = max_val / len(data)
+    else:
+        max_frequency = 0
+        max_val = 0
+    
     return max_frequency, max_val
 
 
@@ -362,11 +398,16 @@ functions1 = [speed_info, acc_info, angle_info2, power_info, taps_info, specter_
 functions2 = [speed_info2, acc_info2, angle_info2, power_info2, taps_info, specter_info2]
 functions3 = [speed_info3, acc_info3, angle_info3, power_info3, taps_info, specter_info]
 
-functions1_2 = [speed_info, acc_info, angle_info, power_info, taps_info, specter_info, speed_info2, acc_info2,
+functions1_2 = [speed_info, acc_info, angle_info, power_info,
+                taps_info, specter_info, speed_info2, acc_info2,
                 angle_info2, power_info2, specter_info2]
 
-functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info, specter_info, speed_info2, acc_info2,
-                  angle_info2, power_info2, specter_info2, speed_info3, acc_info3, angle_info3, power_info3]
+functions1_2_3 = [speed_info, acc_info, angle_info, power_info, taps_info, 
+                  specter_info, speed_info2, acc_info2,
+                  angle_info2, power_info2, specter_info2, 
+                  speed_info3, acc_info3, angle_info3, power_info3]
+
+functionsTest = [angle_info, angle_info2, angle_info3]
 
 functions = functions1_2
 
@@ -418,19 +459,22 @@ class ExtractionInfo:
         return
 
 
-def trans(val):
+def trans(val, time_tap=[]):
     return val
 
 
-def diff(val):
+def diff(val, time_tap=[]):
     return calc_diff(val)
 
 
-def integral(val):
+def integral(val, time_tap):
+    return calc_no_drift_integral_poly(val, time_tap)
+
+def integralRaw(val, time_tap):
     return calc_no_drift_integral(val)
 
 
-def pow2(val):
+def pow2(val, time_tap=[]):
     return val * val
 
 

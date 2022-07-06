@@ -7,6 +7,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.inspection import permutation_importance
 
 import Diagnosis
 
@@ -23,12 +24,12 @@ class Evaluator:
         return
 
     def crete_models(self):
-        self.models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr', max_iter=1000)))
-        self.models.append(('LDA', LinearDiscriminantAnalysis()))
-        self.models.append(('KNN', KNeighborsClassifier()))
-        self.models.append(('CART', DecisionTreeClassifier()))
-        self.models.append(('NB', GaussianNB()))
-        self.models.append(('SVM', SVC(gamma='auto')))
+        # self.models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr', max_iter=1000)))
+        # self.models.append(('LDA', LinearDiscriminantAnalysis()))
+        self.models.append(('KNN', KNeighborsClassifier(), 15))
+        # self.models.append(('CART', DecisionTreeClassifier()))
+        # self.models.append(('NB', GaussianNB()))
+        # self.models.append(('SVM', SVC(gamma='auto')))
 
         # self.models.append(('KNN1', KNeighborsClassifier(metric='euclidean')))
         # self.models.append(('KNN2', KNeighborsClassifier(metric='manhattan')))
@@ -54,7 +55,9 @@ class Evaluator:
         results = dict()
 
         # self.crete_models()
-
+        
+        all_importances = []
+        
         for model_wrapper in self.models:
             model_name = model_wrapper[0]
             model = model_wrapper[1]
@@ -68,11 +71,15 @@ class Evaluator:
 
             score = accuracy_score(y_validation, predictions)
             results[model_name] = (len(x_validation) * score, conf_mat)
+            
+            temp = permutation_importance(model, x_train, y_train)
+            importances = temp.importances_mean
+            all_importances.append(importances)
 
             # print('Score: {} {} {} {} {} {}'.format(model_name, len(x_validation), score, tests[0].description, y_validation[0], predictions))
 
         evaluation_result = EvaluationResults(0, results)
-        return evaluation_result
+        return evaluation_result, all_importances
 
     def transform(self, x_train, x_test):
         pca = PCA(n_components=2)
