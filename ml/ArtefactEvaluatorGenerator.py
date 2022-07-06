@@ -15,20 +15,36 @@ def get_evaluator():
     evaluator = Evaluator()
     return evaluator
 
-
+def findMostFrequent(arr):
+    
+    hashy = {}
+    for a in arr:
+        if a in hashy.keys():
+            hashy[a] +=1
+        else:
+            hashy[a] = 1
+    maxy = ''
+    maxyval = 0
+    for h in hashy:
+        if hashy[h] > maxyval:
+            maxyval = hashy[h]
+            maxy = h
+    return maxy
+    
+    
 class Evaluator:
     def __init__(self):
         self.models = []
         self.crete_models()
         return
-
+    
     def crete_models(self):
-        self.models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr', max_iter=1000)))
-        self.models.append(('LDA', LinearDiscriminantAnalysis()))
+        # self.models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr', max_iter=1000)))
+        # self.models.append(('LDA', LinearDiscriminantAnalysis()))
         self.models.append(('KNN', KNeighborsClassifier()))
-        self.models.append(('CART', DecisionTreeClassifier()))
-        self.models.append(('NB', GaussianNB()))
-        self.models.append(('SVM', SVC(gamma='auto')))
+        # self.models.append(('CART', DecisionTreeClassifier()))
+        # self.models.append(('NB', GaussianNB()))
+        # self.models.append(('SVM', SVC(gamma='auto')))
 
         # self.models.append(('KNN1', KNeighborsClassifier(metric='euclidean')))
         # self.models.append(('KNN2', KNeighborsClassifier(metric='manhattan')))
@@ -67,7 +83,11 @@ class Evaluator:
             conf_mat = calc_confusion_matrix(y_validation, predictions)
 
             score = accuracy_score(y_validation, predictions)
-            results[model_name] = (len(x_validation) * score, conf_mat)
+            
+            actual =  y_validation[0]
+            plurality = findMostFrequent(predictions)
+            plurality = findMostFrequent(predictions)
+            results[model_name] = (len(x_validation) * score, conf_mat, plurality, actual)
 
             # print('Score: {} {} {} {} {} {}'.format(model_name, len(x_validation), score, tests[0].description, y_validation[0], predictions))
 
@@ -83,6 +103,8 @@ class Evaluator:
     def combine_evaluations(self, evaluation_results):
         results_values = dict()
         result = EvaluationResults(None, results_values)
+        allPredictionsPlural = []
+        allActual = []
         for evaluation_result in evaluation_results:
             result.selector = evaluation_result.selector
 
@@ -90,6 +112,8 @@ class Evaluator:
                 evaluation = evaluation_result.results[key]
                 val = evaluation[0]
                 conf_matrix = evaluation[1]
+                allPredictionsPlural.append(evaluation[2])
+                allActual.append(evaluation[3])
 
                 if key in results_values:
                     old_evaluation = results_values[key]
@@ -101,7 +125,7 @@ class Evaluator:
 
                 results_values[key] = (val, conf_matrix)
 
-        return result
+        return result, allPredictionsPlural, allActual
 
 
 def artefacts_to_nd(artefacts):

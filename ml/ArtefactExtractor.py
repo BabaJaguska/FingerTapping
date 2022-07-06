@@ -11,7 +11,10 @@ def extract(measurements):
     for measurement in measurements:
         # print(measurement.id)
         artefacts = extract_artefacts(measurement)
-        if artefacts is not None: results.append(artefacts)
+        if artefacts is not None: 
+            results.append(artefacts)
+        else:
+            print( measurement.diagnosis + measurement.initials + measurement.date)
     return results
 
 
@@ -32,7 +35,7 @@ def extract_artefacts(measurement, use_taps=True):
                 dict_values[val.name] = val
 
     name = measurement.file
-    description = measurement.initials
+    description = measurement.diagnosis + measurement.initials + measurement.date
     decision = measurement.diagnosis
     result = Artefact(name, description, None, dict_values, decision)
     return result

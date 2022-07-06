@@ -2,7 +2,54 @@ from datetime import datetime
 
 import Parameters
 import ArtefactFilter
+from matplotlib import pyplot as plt
+from itertools import product
+import numpy as np
 
+
+def plotConfMat(cm, cmPerc, filePathToSavePlot, showPlots=0):
+    '''
+    Plot a given confusion matrix with both absolute and percent values
+    Then save the plot as .png
+
+    Parameters
+    ----------
+        cm (): Confusion Matrix
+        cmPerc (): Confusion Matrix but with percentage values (% of rows)
+        filePathToSavePlot (): [file path] + filename of the image to be saved
+
+    Returns
+    --------
+        None
+    '''
+
+    plt.figure(figsize=(20, 20))
+    plt.imshow(cmPerc)
+    plt.colorbar()
+    N_classes = len(cm)
+
+    classes = ['HC', 'MSA', 'PD', 'PSP']
+
+    for i, j in product(range(N_classes), range(N_classes)):
+        plt.text(i, j, '{}%\n({})'.format(round(cmPerc[j, i], 2), cm[j, i], 'd'),
+                 horizontalalignment="center",
+                 color='white' if cmPerc[j, i] < 60 else "black",
+                 size=22)
+    tick_marks = np.arange(N_classes)
+
+    plt.xticks(tick_marks, classes, rotation=45, size=25)
+    plt.yticks(tick_marks, classes, size=25)
+    plt.ylabel('True label', size=25)
+    plt.xlabel('\nPredicted label', size=25)
+    #  plt.style.use(['tableau-colorblind10'])
+    #  plt.rcparams.image.cmap'] = 'viridis'
+    plt.title('Confusion matrix\n', size=27)
+    # fig1 = plt.gcf()
+    plt.savefig(filePathToSavePlot, dpi=100)
+    if showPlots:
+        plt.show()
+
+    return
 
 def evaluate(artefacts, selectors, test, evaluator):
     results = []
@@ -17,10 +64,21 @@ def evaluate(artefacts, selectors, test, evaluator):
             evaluation_results.append(single_evaluation)
 
         selectors_result = evaluator.combine_evaluations(evaluation_results)
-        selectors_result.set_selector(s)
-        results.append(selectors_result)
-        log(selectors_result)
+        selectors_result[0].set_selector(s)
+        results.append(selectors_result[0])
+        log(selectors_result[0])
         if len(results) % 500 == 0: print_best(results)
+        
+        #### TEMP######
+        actual = selectors_result[2]
+        pred = selectors_result[1]
+        from sklearn.metrics import confusion_matrix
+        confMat = confusion_matrix(actual, pred)
+        sumaPoRedovima = confMat.astype('float').sum(axis=1)
+        confMatPerc = [gore/dole for gore, dole in zip(confMat, sumaPoRedovima)]
+        confMatPerc = np.matrix(confMatPerc)*100   
+        filePathToSavePlot = r'D:\GIT\FingerTapping\figures\cm.jpg'
+        plotConfMat(confMat, confMatPerc, filePathToSavePlot, 1)
 
     return results
 
