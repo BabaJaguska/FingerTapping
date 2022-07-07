@@ -13,8 +13,8 @@ def extract(measurements):
         artefacts = extract_artefacts(measurement)
         if artefacts is not None: 
             results.append(artefacts)
-        else:
-            print( measurement.diagnosis + measurement.initials + measurement.date)
+        # else:
+        #     print( measurement.diagnosis + measurement.initials + measurement.date)
     return results
 
 

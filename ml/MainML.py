@@ -21,7 +21,15 @@ def main():
     selectors = ArtefactSelectorGenerator.select(artefacts, selection_type='SEQUENCE',
                                                  start_index=63, end_index=64,
                                                  initial_selectors=[0b111111])
-
+    
+    hh = {}
+    for a in artefacts:
+        hh[a.result] = hh.get(a.result, 0)
+        hh[a.result]+=1
+    
+    print(hh)
+        
+        
     print(selectors)
 
     test = ArtefactTestGenerator.generate()

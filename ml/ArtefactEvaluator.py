@@ -28,22 +28,23 @@ def plotConfMat(cm, cmPerc, filePathToSavePlot, showPlots=0):
     plt.colorbar()
     N_classes = len(cm)
 
-    classes = ['HC', 'MSA', 'PD', 'PSP']
+    classes = ['MSA', 'PD', 'PSP', 'HC']
 
     for i, j in product(range(N_classes), range(N_classes)):
-        plt.text(i, j, '{}%\n({})'.format(round(cmPerc[j, i], 2), cm[j, i], 'd'),
+        plt.text(i, j,
+                 cm[j, i],
                  horizontalalignment="center",
                  color='white' if cmPerc[j, i] < 60 else "black",
-                 size=22)
+                 size=35)
     tick_marks = np.arange(N_classes)
 
-    plt.xticks(tick_marks, classes, rotation=45, size=25)
-    plt.yticks(tick_marks, classes, size=25)
-    plt.ylabel('True label', size=25)
-    plt.xlabel('\nPredicted label', size=25)
+    plt.xticks(tick_marks, classes, rotation=45, size=27)
+    plt.yticks(tick_marks, classes, size=27)
+    plt.ylabel('True diagnosis', size=30)
+    plt.xlabel('\nPredicted diagnosis', size=30)
     #  plt.style.use(['tableau-colorblind10'])
     #  plt.rcparams.image.cmap'] = 'viridis'
-    plt.title('Confusion matrix\n', size=27)
+    plt.title('Confusion matrix\n', size=32)
     # fig1 = plt.gcf()
     plt.savefig(filePathToSavePlot, dpi=100)
     if showPlots:
@@ -73,7 +74,8 @@ def evaluate(artefacts, selectors, test, evaluator):
         actual = selectors_result[2]
         pred = selectors_result[1]
         from sklearn.metrics import confusion_matrix
-        confMat = confusion_matrix(actual, pred)
+        labels = ['MSA', 'PD', 'PSP', 'CTRL']
+        confMat = confusion_matrix(actual, pred, labels=labels)
         sumaPoRedovima = confMat.astype('float').sum(axis=1)
         confMatPerc = [gore/dole for gore, dole in zip(confMat, sumaPoRedovima)]
         confMatPerc = np.matrix(confMatPerc)*100   
