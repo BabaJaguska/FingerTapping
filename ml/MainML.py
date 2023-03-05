@@ -179,106 +179,121 @@ msa =  119 #159 #203
 pd = 293
 psp = 435 #370
 
-small = 20
-smaller = 18
-large = 28
-mid = 24
+small = 22
+smaller = 20
+large = 29
+mid = 26
 
 nsec = 4*200
 t = np.linspace(0,4,nsec)
 plt.cm.gray
 plt.figure(figsize = (20,20))
 
+color_x = '#2596be'
+color_y = '#873e23'
+color_z = '#eab676'
 
+width_x = 2
+width_y = 3
+width_z = 4
 
+loc='upper right'
+legendSize = 21
 
-plt.subplot(421)
-plt.plot(t,measurements[msa].gyro1x[:nsec], linewidth=4, color='0.6')
-plt.plot(t,measurements[msa].gyro1y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[msa].gyro1z[:nsec], color='0.1',linewidth=1)
+plt.subplot(425)
+plt.plot(t,measurements[msa].gyro1x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[msa].gyro1y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[msa].gyro1z[:nsec], color=color_z,linewidth=width_z)
 plt.title('MSA participant -  THUMB', size=large)
 plt.xlabel('t [s]', size = small)
 plt.ylabel(r'$\omega [rad/s]$', size = mid)
-plt.xticks(size=smaller)
-plt.yticks(size = small)
-plt.ylim([-10,16])
-
-plt.subplot(422)
-plt.plot(t,measurements[msa].gyro2x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[msa].gyro2y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[msa].gyro2z[:nsec], color='0.1', linewidth=1)
-plt.title('MSA participant -  INDEX', size=large)
-plt.xlabel('t [s]', size = small)
-plt.ylabel(r'$\omega [rad/s]$', size = mid)
-plt.xticks(size=smaller)
-plt.yticks(size = small)
-plt.ylim([-21,31])
-
-plt.subplot(423)
-plt.plot(t,measurements[pd].gyro1x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[pd].gyro1y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[pd].gyro1z[:nsec], color='0.1', linewidth=1)
-plt.title('PD participant -  THUMB', size=large)
-plt.xlabel('t [s]', size = small)
-plt.ylabel(r'$\omega [rad/s]$', size = mid)
-plt.xticks(size=smaller)
-plt.yticks(size = small)
-plt.ylim([-10,16])
-
-plt.subplot(424)
-plt.plot(t,measurements[pd].gyro2x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[pd].gyro2y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[pd].gyro2z[:nsec], color='0.1', linewidth=1)
-plt.title('PD participant -  INDEX', size=large)
-plt.xlabel('t [s]', size = small)
-plt.ylabel(r'$\omega [rad/s]$', size = mid)
-plt.xticks(size=smaller)
-plt.yticks(size = small)
-plt.ylim([-21,31])
-
-
-plt.subplot(425)
-plt.plot(t,measurements[psp].gyro1x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[psp].gyro1y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[psp].gyro1z[:nsec], color='0.1', linewidth=1)
-plt.title('PSP participant -  THUMB', size=large)
-plt.xlabel('t [s]', size = small)
-plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'], loc=loc, prop={'size': legendSize})
 plt.xticks(size=smaller)
 plt.yticks(size = small)
 plt.ylim([-10,16])
 
 plt.subplot(426)
-plt.plot(t,measurements[psp].gyro2x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[psp].gyro2y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[psp].gyro2z[:nsec], color='0.1', linewidth=1)
+plt.plot(t,measurements[msa].gyro2x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[msa].gyro2y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[msa].gyro2z[:nsec], color=color_z, linewidth=width_z)
+plt.title('MSA participant -  INDEX', size=large)
+plt.xlabel('t [s]', size = small)
+plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'], loc=loc, prop={'size': legendSize})
+plt.xticks(size=smaller)
+plt.yticks(size = small)
+plt.ylim([-21,31])
+
+plt.subplot(421)
+plt.plot(t,measurements[pd].gyro1x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[pd].gyro1y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[pd].gyro1z[:nsec], color=color_z, linewidth=width_z)
+plt.title('PD participant -  THUMB', size=large)
+plt.xlabel('t [s]', size = small)
+plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'], loc=loc, prop={'size': legendSize})
+plt.xticks(size=smaller)
+plt.yticks(size = small)
+plt.ylim([-10,16])
+
+plt.subplot(422)
+plt.plot(t,measurements[pd].gyro2x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[pd].gyro2y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[pd].gyro2z[:nsec], color=color_z, linewidth=width_z)
+plt.title('PD participant -  INDEX', size=large)
+plt.xlabel('t [s]', size = small)
+plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'],loc=loc,  prop={'size': legendSize})
+plt.xticks(size=smaller)
+plt.yticks(size = small)
+plt.ylim([-21,31])
+
+
+plt.subplot(423)
+plt.plot(t,measurements[psp].gyro1x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[psp].gyro1y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[psp].gyro1z[:nsec], color=color_z, linewidth=width_z)
+plt.title('PSP participant -  THUMB', size=large)
+plt.xlabel('t [s]', size = small)
+plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'], loc=loc, prop={'size': legendSize})
+plt.xticks(size=smaller)
+plt.yticks(size = small)
+plt.ylim([-10,16])
+
+plt.subplot(424)
+plt.plot(t,measurements[psp].gyro2x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[psp].gyro2y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[psp].gyro2z[:nsec], color=color_z, linewidth=width_z)
 plt.title('PSP participant -  INDEX', size=large)
 plt.xlabel('t [s]', size = small)
 plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'],loc=loc,  prop={'size': legendSize})
 plt.xticks(size=smaller)
 plt.yticks(size = small)
 plt.ylim([-21,31])
 
 plt.subplot(427)
-plt.plot(t,measurements[ctrl].gyro1x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[ctrl].gyro1y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[ctrl].gyro1z[:nsec], color='0.1',linewidth=1)
+plt.plot(t,measurements[ctrl].gyro1x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[ctrl].gyro1y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[ctrl].gyro1z[:nsec], color=color_z,linewidth=width_z)
 plt.title('HC participant -  THUMB', size=large)
 plt.xlabel('t [s]', size = small)
 plt.ylabel(r'$\omega [rad/s]$', size = mid)
+plt.legend(['X', 'Y', 'Z'], loc=loc, prop={'size': legendSize})
 plt.xticks(size=smaller)
 plt.yticks(size = small)
 plt.ylim([-10,16])
 
 
 plt.subplot(428)
-plt.plot(t,measurements[ctrl].gyro2x[:nsec], linewidth=4, color='0.5')
-plt.plot(t,measurements[ctrl].gyro2y[:nsec], linestyle='dashed', color='0.4', linewidth=2)
-plt.plot(t,measurements[ctrl].gyro2z[:nsec], color='0.1', linewidth=1)
+plt.plot(t,measurements[ctrl].gyro2x[:nsec], linewidth=width_x, color=color_x)
+plt.plot(t,measurements[ctrl].gyro2y[:nsec], linestyle='dashed', color=color_y, linewidth=width_y)
+plt.plot(t,measurements[ctrl].gyro2z[:nsec], color=color_z, linewidth=width_z)
 plt.title('HC participant -  INDEX', size=large)
 plt.xlabel('t [s]', size = small)
 plt.ylabel(r'$\omega [rad/s]$', size = mid)
-plt.legend(['X', 'Y', 'Z'],  prop={'size': 20})
+plt.legend(['X', 'Y', 'Z'], loc=loc, prop={'size': legendSize})
 plt.xticks(size=smaller)
 plt.yticks(size = small)
 plt.ylim([-21,31])
@@ -287,7 +302,7 @@ plt.tight_layout()
 
 if not os.path.exists('./figs'):
     os.mkdir('./figs')
-plt.savefig('./figs/fig2brt.jpg',
+plt.savefig('./figs/fig2brt.tiff',
             dpi=100)
 plt.show()
 
